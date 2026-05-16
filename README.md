@@ -86,7 +86,7 @@ Django-News-Platform/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/django-news-platform.git
+   git clone https://github.com/Mj241084/Ai-news-agancy.git
    cd django-news-platform
    ```
 
