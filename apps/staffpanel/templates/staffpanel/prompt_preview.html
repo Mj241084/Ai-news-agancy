@@ -1,0 +1,33 @@
+{% extends "staffpanel/base.html" %}
+{% load staff_roles %}
+
+{% block title %}پیش‌نمایش پرامپت{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>پیش‌نمایش پرامپت</h1>
+    <p class="muted meta-line">
+        <strong>{{ prompt.title }}</strong><br>
+        کلید: {{ prompt.key }} |
+        وضعیت: {% if prompt.status == "published" %}منتشر شده{% elif prompt.status == "draft" %}پیش‌نویس{% else %}آرشیو{% endif %} |
+        {% if prompt.is_active %}فعال{% else %}غیرفعال{% endif %}
+    </p>
+
+    <div class="toolbar">
+        {% if request.user|has_group:"editorial_admins" %}
+            <a class="btn btn-secondary" href="{% url 'staffpanel:prompt-edit' prompt.pk %}">ویرایش</a>
+        {% endif %}
+        <button class="btn" type="button" data-copy data-copy-target="#prompt-body-{{ prompt.pk }}">کپی متن پرامپت</button>
+        <a class="btn btn-secondary" href="{% url 'staffpanel:prompt-list' %}">بازگشت</a>
+    </div>
+
+    <details class="copy-box" open>
+        <summary>نمایش متن پرامپت</summary>
+        <pre id="prompt-body-{{ prompt.pk }}" class="mono-box">{{ prompt.body }}</pre>
+    </details>
+
+    <div class="preview-body">
+        {{ rendered_body|safe }}
+    </div>
+</div>
+{% endblock %}

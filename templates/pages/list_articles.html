@@ -1,0 +1,64 @@
+
+{% extends 'base.html' %}
+{% load content_extras %}
+
+{% block title %}مقالات{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="page-title">مقالات تخصصی</h1>
+        <p class="page-description">مقالات تحلیلی و آموزشی در حوزه هوش مصنوعی</p>
+    </div>
+</div>
+
+<div class="container">
+    {% include 'partials/_filters_bar.html' with filters_action_url=request.path %}
+    
+    <div class="grid-2">
+        <div class="main-column">
+            {% if items %}
+                <div class="articles-list">
+                    {% for item in items %}
+                        {% include 'partials/_article_card.html' with item=item %}
+                    {% endfor %}
+                </div>
+                
+                {% include 'partials/_pagination.html' %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <svg class="icon icon-file" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#file" xlink:href="{{ icon_sprite }}#file"></use></svg>
+                    </div>
+                    <h3 class="empty-state-title">مقاله‌ای یافت نشد</h3>
+                    <p class="empty-state-text">هنوز مقاله‌ای در سایت منتشر نشده است.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <aside class="sidebar">
+            {% if team_pick_items %}
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <svg class="icon icon-star" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#star" xlink:href="{{ icon_sprite }}#star"></use></svg>
+                    مقالات منتخب
+                </h3>
+                <div class="sidebar-list">
+                    {% for item in team_pick_items|slice:":5" %}
+                    <div class="sidebar-item">
+                        <span class="sidebar-item-number" style="background-color: var(--c-accent);">{{ forloop.counter }}</span>
+                        <div class="sidebar-item-content">
+                            <a href="{{ item|content_url }}" class="sidebar-item-title">{{ item.title }}</a>
+                            <div class="sidebar-item-meta">
+                                <svg class="icon icon-clock" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#clock" xlink:href="{{ icon_sprite }}#clock"></use></svg> {{ item.read_time }} دقیقه مطالعه
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </aside>
+    </div>
+</div>
+{% endblock %}

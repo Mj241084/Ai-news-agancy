@@ -1,0 +1,51 @@
+{% extends "staffpanel/base.html" %}
+
+{% block title %}آمار نظرسنجی{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>آمار نظرسنجی</h1>
+    <p>
+        <strong>{{ poll.title|default:"(بدون عنوان)" }}</strong><br>
+        <span class="muted">تعداد پاسخ‌دهنده: {{ total_responses }} | تعداد پاسخ ثبت‌شده: {{ total_answers }}</span>
+    </p>
+    <div class="toolbar">
+        <a class="btn btn-secondary" href="{% url 'staffpanel:poll-edit' poll.pk %}">بازگشت به نظرسنجی</a>
+        <a class="btn btn-secondary" href="{% url 'staffpanel:poll-list' %}">همه نظرسنجی‌ها</a>
+    </div>
+</div>
+
+{% if question_stats %}
+    {% for question in question_stats %}
+        <div class="card">
+            <h2>{{ forloop.counter }}. {{ question.text }}</h2>
+            <p class="muted">نوع: {% if question.kind == "single" %}تک‌گزینه‌ای{% else %}چندگزینه‌ای{% endif %} | تعداد پاسخ‌دهنده: {{ question.respondent_count }}</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>گزینه</th>
+                            <th>رأی</th>
+                            <th>درصد</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for choice in question.choices %}
+                            <tr>
+                                <td>{{ choice.text }}</td>
+                                <td>{{ choice.count }}</td>
+                                <td>{{ choice.percent }}%</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="card">
+        <p class="muted">هنوز سؤالی ثبت نشده است.</p>
+    </div>
+{% endif %}
+{% endblock %}

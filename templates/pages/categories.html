@@ -1,0 +1,327 @@
+{% extends 'base.html' %}
+
+{% block title %}دسته‌بندی‌ها{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Category Header */
+    .page-header {
+        background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-light) 100%);
+        color: var(--c-bg);
+        padding: var(--sp-8) 0;
+        margin-bottom: var(--sp-8);
+        text-align: center;
+        border-bottom: 4px solid var(--c-accent);
+        border-radius: 0 0 var(--r-4) var(--r-4);
+        box-shadow: var(--sh-2);
+    }
+
+    .page-header .page-title {
+        color: var(--c-text);
+        font-size: var(--fs-1);
+        margin-bottom: var(--sp-3);
+        font-weight: var(--fw-bold);
+    }
+
+    .page-header .page-description {
+        color: var(--c-muted);
+        font-size: var(--fs-4);
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: var(--lh);
+    }
+
+    /* Categories Grid */
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: var(--sp-5);
+    }
+
+    /* Category Card */
+    .category-card {
+        background-color: var(--c-bg);
+        border-radius: var(--r-3);
+        padding: var(--sp-5);
+        border: 1px solid var(--c-border);
+        box-shadow: var(--sh-1);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .category-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 4px;
+        height: 100%;
+        background-color: var(--c-accent);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .category-card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--sh-3);
+        border-color: var(--c-accent);
+    }
+
+    .category-card:hover::after {
+        opacity: 1;
+    }
+
+    /* Category Icon */
+    .category-icon-wrapper {
+        width: 64px;
+        height: 64px;
+        background-color: var(--c-surface);
+        border-radius: var(--r-3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--c-primary);
+        font-size: var(--fs-2);
+        margin-bottom: var(--sp-4);
+        transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+    }
+
+    .category-card:hover .category-icon-wrapper {
+        background-color: var(--c-accent);
+        color: var(--c-bg);
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    /* Category Info */
+    .category-info {
+        flex: 1;
+        position: relative;
+        z-index: 1;
+    }
+
+    .category-title {
+        font-size: var(--fs-3);
+        font-weight: var(--fw-bold);
+        margin-bottom: var(--sp-2);
+        color: var(--c-text);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .category-title a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .category-title a::before {
+        content: '';
+        position: absolute;
+        top: -100px; right: -100px; bottom: -100px; left: -100px;
+        z-index: 0;
+    }
+
+    .category-card:hover .category-title a {
+        color: var(--c-accent);
+    }
+
+    .category-title span {
+        display: inline-block;
+        color: var(--c-border);
+        font-size: var(--fs-4);
+        transition: all 0.3s ease;
+    }
+
+    .category-card:hover .category-title span {
+        color: var(--c-accent);
+        transform: translateX(-4px);
+    }
+
+    .category-meta {
+        font-size: var(--fs-6);
+        color: var(--c-muted);
+        display: flex;
+        align-items: center;
+        gap: var(--sp-1);
+        font-weight: var(--fw-medium);
+        background: var(--c-surface);
+        padding: var(--sp-1) var(--sp-2);
+        border-radius: var(--r-1);
+        width: max-content;
+    }
+
+    /* Subcategories */
+    .category-children {
+        margin-top: var(--sp-4);
+        padding-top: var(--sp-4);
+        border-top: 1px solid var(--c-border);
+        position: relative;
+        z-index: 2; /* Ensures it is clickable over the parent link */
+    }
+
+    .category-children-title {
+        font-size: var(--fs-7);
+        font-weight: var(--fw-bold);
+        color: var(--c-muted);
+        margin-bottom: var(--sp-3);
+    }
+
+    .subcategory-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--sp-2);
+    }
+
+    .subcategory-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: var(--sp-1) var(--sp-3);
+        border-radius: var(--r-2);
+        font-size: var(--fs-7);
+        font-weight: var(--fw-medium);
+        color: var(--c-text);
+        background-color: var(--c-surface);
+        transition: all 0.2s ease;
+        text-decoration: none;
+        border: 1px solid var(--c-border);
+    }
+
+    .subcategory-badge:hover {
+        background-color: var(--c-accent);
+        color: var(--c-bg);
+        border-color: var(--c-accent);
+        transform: translateY(-2px);
+    }
+
+    .subcategory-more {
+        background-color: transparent;
+        color: var(--c-muted);
+        border-style: dashed;
+    }
+
+    .subcategory-more:hover {
+        background-color: var(--c-surface);
+        color: var(--c-text);
+        border-color: var(--c-border);
+        border-style: solid;
+    }
+
+    /* Empty State */
+    .empty-state {
+        background-color: var(--c-bg);
+        border: 2px dashed var(--c-border);
+        border-radius: var(--r-4);
+        padding: var(--sp-8) var(--sp-4);
+        text-align: center;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .empty-state-icon {
+        width: 96px;
+        height: 96px;
+        background-color: var(--c-surface);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: var(--c-muted);
+        margin: 0 auto var(--sp-4);
+    }
+
+    .empty-state-title {
+        font-size: var(--fs-3);
+        margin-bottom: var(--sp-2);
+        color: var(--c-text);
+        font-weight: var(--fw-bold);
+    }
+
+    .empty-state-text {
+        font-size: var(--fs-5);
+        color: var(--c-muted);
+        margin-bottom: var(--sp-5);
+        line-height: var(--lh);
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .page-header {
+            padding: var(--sp-6) var(--sp-4);
+            border-radius: 0;
+            margin-bottom: var(--sp-6);
+        }
+        
+        .page-header .page-title {
+            font-size: var(--fs-2);
+        }
+        
+        .categories-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="page-title">دسته‌بندی‌های مطالب</h1>
+        <p class="page-description">موضوعات مختلف در حوزه هوش مصنوعی را مرور کنید و به راحتی به مقالات و اخبار مورد نظر خود دسترسی پیدا کنید.</p>
+    </div>
+</div>
+
+<div class="container" style="padding-bottom: var(--sp-8);">
+    {% if categories %}
+        <div class="categories-grid">
+            {% for category in categories %}
+            <div class="category-card">
+                <div class="category-icon-wrapper">
+                    <svg class="icon icon-folder" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#folder" xlink:href="{{ icon_sprite }}#folder"></use></svg>
+                </div>
+                
+                <div class="category-info">
+                    <h3 class="category-title">
+                        <a href="{% url 'taxonomy:category_detail' category.slug %}">{{ category.name }}</a>
+                        <span>&#x2190;</span> <!-- آیکون پیکان به سمت چپ -->
+                    </h3>
+                    <div class="category-meta">
+                        <span>{{ category.article_count|default:"0" }} مطلب</span>
+                    </div>
+                </div>
+                
+                {% if category.children %}
+                <div class="category-children">
+                    <div class="category-children-title">زیردسته‌ها</div>
+                    <div class="subcategory-list">
+                        {% for child in category.children|slice:":5" %}
+                        <a href="{% url 'taxonomy:category_detail' child.slug %}" class="subcategory-badge">{{ child.name }}</a>
+                        {% endfor %}
+                        
+                        {% if category.children|length > 5 %}
+                        <a href="{% url 'taxonomy:category_detail' category.slug %}" class="subcategory-badge subcategory-more">+{{ category.children|length|add:"-5" }} مورد دیگر</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <svg class="icon icon-folder" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#folder" xlink:href="{{ icon_sprite }}#folder"></use></svg>
+            </div>
+            <h3 class="empty-state-title">دسته‌بندی یافت نشد</h3>
+            <p class="empty-state-text">در حال حاضر هیچ دسته‌بندی برای نمایش وجود ندارد. لطفاً بعداً دوباره سر بزنید یا به صفحه اصلی بازگردید.</p>
+            <a href="{% url 'core:home' %}" class="btn btn-primary">
+                بازگشت به صفحه اصلی
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

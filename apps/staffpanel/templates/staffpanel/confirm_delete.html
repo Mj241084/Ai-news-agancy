@@ -1,0 +1,23 @@
+{% extends "staffpanel/base.html" %}
+
+{% block title %}حذف مقاله{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>حذف مقاله</h1>
+    <p>از حذف این مقاله مطمئن هستید؟</p>
+
+    <p>
+        <strong>{{ object.title }}</strong><br>
+        <span class="muted">اسلاگ: {{ object.slug }}</span>
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="toolbar">
+            <button class="btn btn-danger" type="submit">حذف</button>
+            <a class="btn btn-secondary" href="{% url 'staffpanel:article-edit' object.pk %}">انصراف</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

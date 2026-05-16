@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+
+{% block title %}ورود و ثبت‌نام{% endblock %}
+
+{% block extra_css %}
+    .auth-wrap {
+        min-height: calc(100vh - var(--header-h) - 220px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--sp-6) var(--sp-4);
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 540px;
+        background: var(--c-bg);
+        border: 1px solid var(--c-border);
+        border-radius: var(--r-3);
+        box-shadow: var(--sh-2);
+        overflow: hidden;
+    }
+
+    .auth-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background: var(--c-surface);
+        border-bottom: 1px solid var(--c-border);
+    }
+
+    .auth-tab {
+        padding: var(--sp-3);
+        border: none;
+        background: transparent;
+        font-weight: var(--fw-semibold);
+        color: var(--c-muted);
+    }
+
+    .auth-tab.active {
+        color: var(--c-primary);
+        background: #fff;
+    }
+
+    .auth-body {
+        padding: var(--sp-6);
+    }
+
+    .auth-panel { display: none; }
+    .auth-panel.active { display: block; }
+
+    .auth-title {
+        margin-bottom: var(--sp-2);
+        font-size: var(--fs-4);
+    }
+
+    .auth-sub {
+        color: var(--c-muted);
+        margin-bottom: var(--sp-5);
+        font-size: var(--fs-6);
+    }
+
+    .form-row { margin-bottom: var(--sp-4); }
+
+    .form-label {
+        display: block;
+        margin-bottom: var(--sp-2);
+        font-weight: var(--fw-medium);
+        font-size: var(--fs-6);
+    }
+
+    .form-input {
+        width: 100%;
+        padding: var(--sp-3);
+        border: 1px solid var(--c-border);
+        border-radius: var(--r-2);
+        font-size: var(--fs-5);
+    }
+
+    .form-input:focus {
+        border-color: var(--c-accent);
+        outline: none;
+    }
+
+    .inline-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--sp-3);
+    }
+
+    .auth-msg {
+        border-radius: var(--r-2);
+        padding: var(--sp-3);
+        margin-bottom: var(--sp-4);
+        font-size: var(--fs-6);
+    }
+
+    .auth-msg.error {
+        border: 1px solid #fecaca;
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+    .auth-msg.ok {
+        border: 1px solid #bbf7d0;
+        background: #f0fdf4;
+        color: #15803d;
+    }
+
+    .steps {
+        display: flex;
+        gap: var(--sp-2);
+        margin-bottom: var(--sp-4);
+        flex-wrap: wrap;
+    }
+
+    .step-pill {
+        border: 1px solid var(--c-border);
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: var(--fs-7);
+        color: var(--c-muted);
+    }
+
+    .step-pill.active {
+        border-color: var(--c-accent);
+        color: var(--c-accent);
+        font-weight: var(--fw-semibold);
+    }
+
+    .muted-note {
+        margin-top: var(--sp-3);
+        font-size: var(--fs-7);
+        color: var(--c-muted);
+    }
+
+    @media (max-width: 640px) {
+        .inline-grid { grid-template-columns: 1fr; }
+        .auth-body { padding: var(--sp-4); }
+    }
+{% include 'partials/_responive.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+    <div class="auth-card">
+        <div class="auth-tabs">
+            <button type="button" class="auth-tab {% if auth_tab == 'login' %}active{% endif %}" data-tab="login">ورود با رمز</button>
+            <button type="button" class="auth-tab {% if auth_tab == 'signup' %}active{% endif %}" data-tab="signup">ثبت‌نام</button>
+        </div>
+
+        <div class="auth-body">
+            {% if auth_error %}
+                <div class="auth-msg error">{{ auth_error }}</div>
+            {% endif %}
+            {% if auth_success %}
+                <div class="auth-msg ok">{{ auth_success }}</div>
+            {% endif %}
+
+            <section class="auth-panel {% if auth_tab == 'login' %}active{% endif %}" id="panel-login">
+                <h1 class="auth-title">ورود</h1>
+                <p class="auth-sub">با ایمیل و رمز عبور وارد شوید.</p>
+                <form method="post" action="{% url 'accounts:login_password' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ next_url }}">
+                    <div class="form-row">
+                        <label class="form-label" for="login-email">ایمیل</label>
+                        <input class="form-input" id="login-email" type="email" name="email" value="{{ login_email }}" required>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" for="login-password">رمز عبور</label>
+                        <input class="form-input" id="login-password" type="password" name="password" required>
+                    </div>
+                    <button class="btn btn-primary" type="submit">ورود</button>
+                </form>
+            </section>
+
+            <section class="auth-panel {% if auth_tab == 'signup' %}active{% endif %}" id="panel-signup">
+                <h1 class="auth-title">ثبت‌نام</h1>
+                <p class="auth-sub">ایمیل را تایید کنید، سپس نام و رمز خود را تنظیم کنید.</p>
+
+                <div class="steps">
+                    <span class="step-pill {% if signup_stage == 'request' %}active{% endif %}">۱) دریافت کد</span>
+                    <span class="step-pill {% if signup_stage == 'verify' %}active{% endif %}">۲) تایید کد</span>
+                    <span class="step-pill {% if signup_stage == 'complete' %}active{% endif %}">۳) تکمیل ثبت‌نام</span>
+                </div>
+
+                {% if signup_stage == 'request' %}
+                    <form method="post" action="{% url 'accounts:request_code' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ next_url }}">
+                        <div class="form-row">
+                            <label class="form-label" for="signup-email">ایمیل</label>
+                            <input class="form-input" id="signup-email" type="email" name="email" value="{{ signup_email }}" required>
+                        </div>
+                        <button class="btn btn-primary" type="submit">ارسال کد تایید</button>
+                    </form>
+                {% elif signup_stage == 'verify' %}
+                    <form method="post" action="{% url 'accounts:verify_code' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ next_url }}">
+                        <div class="form-row">
+                            <label class="form-label" for="verify-email">ایمیل</label>
+                            <input class="form-input" id="verify-email" type="email" name="email" value="{{ signup_email }}" required>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label" for="verify-code">کد تایید</label>
+                            <input class="form-input" id="verify-code" type="text" name="code" maxlength="6" minlength="6" inputmode="numeric" required>
+                        </div>
+                        <div class="inline-grid">
+                            <button class="btn btn-primary" type="submit">تایید کد</button>
+                            <button class="btn btn-outline" type="submit" formaction="{% url 'accounts:resend_code' %}" formnovalidate>ارسال مجدد کد</button>
+                        </div>
+                    </form>
+                {% else %}
+                    <form method="post" action="{% url 'accounts:complete_signup' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ next_url }}">
+                        <div class="form-row">
+                            <label class="form-label" for="complete-email">ایمیل تاییدشده</label>
+                            <input class="form-input" id="complete-email" type="email" name="email" value="{{ signup_email }}" required readonly>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label" for="complete-name">نام</label>
+                            <input class="form-input" id="complete-name" type="text" name="first_name" maxlength="150" required>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label" for="complete-password">رمز عبور</label>
+                            <input class="form-input" id="complete-password" type="password" name="password" required>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label" for="complete-password-confirm">تکرار رمز عبور</label>
+                            <input class="form-input" id="complete-password-confirm" type="password" name="password_confirm" required>
+                        </div>
+                        <button class="btn btn-primary" type="submit">تکمیل ثبت‌نام</button>
+                    </form>
+                {% endif %}
+
+                <p class="muted-note">با ادامه، شما قوانین سایت را می‌پذیرید.</p>
+            </section>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    const tabs = document.querySelectorAll('.auth-tab');
+    const panels = {
+        login: document.getElementById('panel-login'),
+        signup: document.getElementById('panel-signup'),
+    };
+
+    function activate(tabName) {
+        tabs.forEach((btn) => {
+            btn.classList.toggle('active', btn.dataset.tab === tabName);
+        });
+        Object.keys(panels).forEach((name) => {
+            if (!panels[name]) return;
+            panels[name].classList.toggle('active', name === tabName);
+        });
+    }
+
+    tabs.forEach((btn) => {
+        btn.addEventListener('click', () => activate(btn.dataset.tab));
+    });
+})();
+</script>
+{% endblock %}

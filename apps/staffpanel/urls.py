@@ -1,0 +1,53 @@
+from __future__ import annotations
+from django.urls import path
+
+from apps.staffpanel import views
+
+app_name = "staffpanel"
+
+urlpatterns = [
+    path("", views.DashboardView.as_view(), name="dashboard"),
+    path("articles/", views.ArticleListView.as_view(), name="article-list"),
+    path("articles/new/", views.ArticleCreateView.as_view(), name="article-new"),
+    path("articles/<int:pk>/edit/", views.ArticleUpdateView.as_view(), name="article-edit"),
+    path("articles/<int:pk>/preview/", views.ArticlePreviewView.as_view(), name="article-preview"),
+    path("drafts/", views.DraftListView.as_view(), name="draft-list"),
+    path("categories/", views.CategoryListView.as_view(), name="category-list"),
+    path("categories/new/", views.CategoryCreateView.as_view(), name="category-new"),
+    path("categories/<int:pk>/edit/", views.CategoryUpdateView.as_view(), name="category-edit"),
+    path("categories/<int:pk>/delete/", views.CategoryDeleteView.as_view(), name="category-delete"),
+    path("tags/", views.TagListView.as_view(), name="tag-list"),
+    path("tags/new/", views.TagCreateView.as_view(), name="tag-new"),
+    path("tags/<int:pk>/edit/", views.TagUpdateView.as_view(), name="tag-edit"),
+    path("entities/", views.EntityListView.as_view(), name="entity-list"),
+    path("entities/new/", views.EntityCreateView.as_view(), name="entity-new"),
+    path("entities/<int:pk>/edit/", views.EntityUpdateView.as_view(), name="entity-edit"),
+    path("sources/", views.SourceListView.as_view(), name="source-list"),
+    path("sources/new/", views.SourceCreateView.as_view(), name="source-new"),
+    path("sources/<int:pk>/edit/", views.SourceUpdateView.as_view(), name="source-edit"),
+    path("rankings/", views.RankingListView.as_view(), name="ranking-list"),
+    path("rankings/new/", views.RankingCreateView.as_view(), name="ranking-new"),
+    path("rankings/<int:pk>/edit/", views.RankingUpdateView.as_view(), name="ranking-edit"),
+    path("rankings/<int:pk>/delete/", views.RankingDeleteView.as_view(), name="ranking-delete"),
+    path("prompts/", views.PromptTemplateListView.as_view(), name="prompt-list"),
+    path("prompts/new/", views.PromptTemplateCreateView.as_view(), name="prompt-new"),
+    path("prompts/<int:pk>/edit/", views.PromptTemplateUpdateView.as_view(), name="prompt-edit"),
+    path("prompts/<int:pk>/preview/", views.PromptTemplatePreviewView.as_view(), name="prompt-preview"),
+    path("prompts/<int:pk>/delete/", views.PromptTemplateDeleteView.as_view(), name="prompt-delete"),
+    path("rules/", views.WritingRuleSetListView.as_view(), name="ruleset-list"),
+    path("rules/new/", views.WritingRuleSetCreateView.as_view(), name="ruleset-new"),
+    path("rules/<int:pk>/edit/", views.WritingRuleSetUpdateView.as_view(), name="ruleset-edit"),
+    path("rules/<int:pk>/preview/", views.WritingRuleSetPreviewView.as_view(), name="ruleset-preview"),
+    path("rules/<int:pk>/delete/", views.WritingRuleSetDeleteView.as_view(), name="ruleset-delete"),
+    path("polls/", views.PollListView.as_view(), name="poll-list"),
+    path("polls/new/", views.PollCreateView.as_view(), name="poll-new"),
+    path("polls/<int:pk>/edit/", views.PollUpdateView.as_view(), name="poll-edit"),
+    path("polls/<int:pk>/delete/", views.PollDeleteView.as_view(), name="poll-delete"),
+    path("polls/<int:pk>/stats/", views.PollStatsView.as_view(), name="poll-stats"),
+    path("polls/<int:poll_id>/questions/new/", views.PollQuestionCreateView.as_view(), name="poll-question-new"),
+    path("questions/<int:pk>/edit/", views.PollQuestionUpdateView.as_view(), name="question-edit"),
+    path("questions/<int:pk>/delete/", views.PollQuestionDeleteView.as_view(), name="question-delete"),
+    path("questions/<int:question_id>/choices/new/", views.PollChoiceCreateView.as_view(), name="question-choice-new"),
+    path("choices/<int:pk>/edit/", views.PollChoiceUpdateView.as_view(), name="choice-edit"),
+    path("choices/<int:pk>/delete/", views.PollChoiceDeleteView.as_view(), name="choice-delete"),
+]

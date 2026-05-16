@@ -1,0 +1,56 @@
+{% load static %}
+<footer class="site-footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <div class="footer-brand">
+                    <img
+                        src="{% static 'images/Logo.webp' %}"
+                        alt="AI News"
+                        loading="lazy"
+                        decoding="async"
+                    >
+                    <span>AI News</span>
+                </div>
+                <p class="footer-desc">
+                    مرجع تخصصی اخبار و مقالات هوش مصنوعی. آخرین تحولات، مقالات تحلیلی و اخبار فناوری‌های هوشمند را با ما دنبال کنید.
+                </p>
+            </div>
+            
+            <div class="footer-col">
+                <h4 class="footer-title">دسترسی سریع</h4>
+                <ul class="footer-links">
+                    <li><a href="{% url 'core:home' %}" class="footer-link">صفحه اصلی</a></li>
+                    <li><a href="{% url 'taxonomy:category_index' %}" class="footer-link">دسته‌بندی‌ها</a></li>
+                    <li><a href="{% url 'content:news_list' %}" class="footer-link">اخبار</a></li>
+                    <li><a href="{% url 'content:article_list' %}" class="footer-link">مقالات</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h4 class="footer-title">درباره ما</h4>
+                <ul class="footer-links">
+                    <li><a href="{% url 'core:about' %}" class="footer-link">درباره ما</a></li>
+                    <li><a href="{% url 'core:contact' %}" class="footer-link">تماس با ما</a></li>
+                    <li><a href="{% url 'core:terms' %}" class="footer-link">قوانین و مقررات</a></li>
+                    <li><a href="{% url 'core:privacy' %}" class="footer-link">حریم خصوصی</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h4 class="footer-title">شبکه‌های اجتماعی</h4>
+                <ul class="footer-links">
+                    <li><a href="#" class="footer-link"><svg class="icon icon-twitter_2" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#twitter" xlink:href="{{ icon_sprite }}#twitter_2"></use></svg> توییتر</a></li>
+                    <li><a href="#" class="footer-link"><svg class="icon icon-linkedin" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#linkedin" xlink:href="{{ icon_sprite }}#linkedin"></use></svg> لینکدین</a></li>
+                    <li><a href="#" class="footer-link"><svg class="icon icon-telegram_app" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#telegram_app" xlink:href="{{ icon_sprite }}#telegram_app"></use></svg> تلگرام</a></li>
+                    <li><a href="#" class="footer-link"><svg class="icon icon-instagram" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#instagram" xlink:href="{{ icon_sprite }}#instagram"></use></svg> اینستاگرام</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>تمامی حقوق محفوظ است © ۱۴۰۳ AI News</p>
+            <p>طراحی و توسعه با <svg class="icon icon-heart" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#heart" xlink:href="{{ icon_sprite }}#heart"></use></svg></p>
+        </div>
+    </div>
+</footer>

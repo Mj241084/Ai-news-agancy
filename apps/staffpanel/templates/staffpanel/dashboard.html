@@ -1,0 +1,90 @@
+{% extends "staffpanel/base.html" %}
+
+{% block title %}داشبورد استاف{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>داشبورد</h1>
+    <div class="stats">
+        <div class="stat-box">
+            <div class="stat-title">کل مقالات</div>
+            <div class="stat-value">{{ total_count }}</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-title">پیش‌نویس</div>
+            <div class="stat-value">{{ draft_count }}</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-title">منتشر شده</div>
+            <div class="stat-value">{{ published_count }}</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-title">پیشنهاد تیم</div>
+            <div class="stat-value">{{ team_pick_count }}</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-title">نظرسنجی‌ها</div>
+            <div class="stat-value">{{ poll_count }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="toolbar">
+        <a class="btn" href="{% url 'staffpanel:article-new' %}">ایجاد محتوای جدید</a>
+        <a class="btn btn-secondary" href="{% url 'staffpanel:article-list' %}">مدیریت مقالات</a>
+        <a class="btn btn-secondary" href="{% url 'staffpanel:draft-list' %}">بررسی پیش‌نویس‌ها</a>
+        <a class="btn btn-secondary" href="{% url 'staffpanel:poll-list' %}">نظرسنجی‌ها</a>
+    </div>
+
+    <h2>آخرین آیتم‌های ویرایش‌شده</h2>
+    {% if recent_articles %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>عنوان</th>
+                        <th>وضعیت</th>
+                        <th>نوع</th>
+                        <th>آخرین ویرایش</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for article in recent_articles %}
+                    <tr>
+                        <td>
+                            <strong>{{ article.title }}</strong><br>
+                            <span class="muted">/{{ article.slug }}/</span>
+                        </td>
+                        <td>
+                            {% if article.status == "published" %}
+                                <span class="badge badge-published">منتشر شده</span>
+                            {% else %}
+                                <span class="badge badge-draft">پیش‌نویس</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if article.content_type == "short_news" %}
+                                خبر کوتاه
+                            {% elif article.content_type == "post" %}
+                                پست
+                            {% else %}
+                                مقاله
+                            {% endif %}
+                        </td>
+                        <td>{{ article.updated_at }}</td>
+                        <td class="actions">
+                            <a href="{% url 'staffpanel:article-edit' article.pk %}">ویرایش</a>
+                            <a href="{% url 'staffpanel:article-preview' article.pk %}">پیش‌نمایش</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="muted">هنوز محتوایی ثبت نشده است.</p>
+    {% endif %}
+</div>
+{% endblock %}

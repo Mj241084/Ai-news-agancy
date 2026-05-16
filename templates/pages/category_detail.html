@@ -1,0 +1,284 @@
+
+{% extends 'base.html' %}
+{% load content_extras %}
+
+{% block title %}{{ category.name }}{% endblock %}
+
+{% block extra_css %}
+    .articles-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--sp-4);
+    }
+
+    .articles-grid .article-card {
+        height: 100%;
+    }
+
+    .articles-grid .article-card-link {
+        display: block;
+        height: 100%;
+    }
+
+    .sidebar-tabs-header {
+        display: flex;
+        gap: var(--sp-1);
+        border-bottom: 1px solid var(--c-border);
+        padding-bottom: var(--sp-2);
+        margin-bottom: var(--sp-3);
+    }
+
+    .sidebar-tab-btn {
+        flex: 1;
+        padding: var(--sp-2) var(--sp-1);
+        font-size: var(--fs-7);
+        font-weight: var(--fw-semibold);
+        color: var(--c-muted);
+        background-color: transparent;
+        border: none;
+        border-bottom: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .sidebar-tab-btn:hover {
+        color: var(--c-primary);
+    }
+
+    .sidebar-tab-btn.active {
+        color: var(--c-accent);
+        border-bottom-color: var(--c-accent);
+    }
+
+    .sidebar-tab-content {
+        display: none;
+        flex-direction: column;
+        gap: var(--sp-2);
+    }
+
+    .sidebar-tab-content.active {
+        display: flex;
+    }
+
+    .side-news-item {
+        display: flex;
+        gap: var(--sp-2);
+        padding-bottom: var(--sp-3);
+        border-bottom: 1px solid var(--c-border);
+        color: inherit;
+    }
+
+    .side-news-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .side-news-img {
+        width: 80px;
+        height: 80px;
+        border-radius: var(--r-2);
+        object-fit: cover;
+        background-color: var(--c-bg);
+        flex-shrink: 0;
+    }
+
+    .side-news-info {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .side-news-title {
+        font-size: var(--fs-6);
+        font-weight: var(--fw-semibold);
+        line-height: 1.5;
+        color: var(--c-text);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .side-news-title:hover {
+        color: var(--c-accent);
+    }
+
+    .side-news-date {
+        font-size: var(--fs-7);
+        color: var(--c-muted);
+    }
+
+    .sidebar-tab-empty {
+        color: var(--c-muted);
+        font-size: var(--fs-6);
+        margin: 0;
+    }
+
+    .subcats-bar {
+        margin: var(--sp-4) 0 var(--sp-5);
+        display: flex;
+        gap: var(--sp-2);
+        overflow-x: auto;
+        padding-bottom: var(--sp-2);
+    }
+    .subcat-chip {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-2);
+        padding: var(--sp-2) var(--sp-4);
+        border-radius: 999px;
+        border: 1px solid var(--c-border);
+        background: var(--c-surface);
+        color: var(--c-text);
+        font-size: var(--fs-6);
+        transition: transform .12s ease, border-color .12s ease;
+    }
+    .subcat-chip:hover {
+        transform: translateY(-1px);
+        border-color: var(--c-primary-light);
+    }
+    .subcat-chip.active {
+        border-color: var(--c-primary);
+        background: rgba(74, 163, 255, 0.10);
+        color: var(--c-primary);
+        font-weight: var(--fw-semibold);
+    }
+
+    @media (max-width: 1100px) {
+        .articles-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="page-title">{{ category.name }}</h1>
+        {% if category.description %}
+        <p class="page-description">{{ category.description }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container">
+    {% include 'partials/_filters_bar.html' with subcategories=True filters_action_url=request.path %}
+    {% include 'partials/_subcategories_bar.html' %}
+    
+    <div class="grid-2">
+        <div class="main-column">
+            {% if items %}
+                <div class="articles-grid">
+                    {% for item in items %}
+                        {% include 'partials/_article_card.html' with item=item %}
+                    {% endfor %}
+                </div>
+                
+                {% include 'partials/_pagination.html' %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <svg class="icon icon-inbox" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#inbox" xlink:href="{{ icon_sprite }}#inbox"></use></svg>
+                    </div>
+                    <h3 class="empty-state-title">مطلبی در این دسته‌بندی یافت نشد</h3>
+                    <p class="empty-state-text">هنوز مطلبی در این دسته‌بندی منتشر نشده است.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <aside class="sidebar">
+            <div class="sidebar-section sidebar-tabs-section">
+                <h3 class="sidebar-title">
+                    <svg class="icon icon-layers" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#layers" xlink:href="{{ icon_sprite }}#layers"></use></svg>
+                    {{ category.name }} در یک نگاه
+                </h3>
+
+                <div class="sidebar-tabs-header">
+                    <button type="button" class="sidebar-tab-btn active" onclick="switchCategoryTab(event, 'cat-latest')">آخرین</button>
+                    <button type="button" class="sidebar-tab-btn" onclick="switchCategoryTab(event, 'cat-popular')">محبوب‌ترین</button>
+                    <button type="button" class="sidebar-tab-btn" onclick="switchCategoryTab(event, 'cat-team')">پیشنهاد تیم</button>
+                </div>
+
+                <div id="cat-latest" class="sidebar-tab-content active">
+                    {% for item in latest_items|slice:":8" %}
+                    <a href="{{ item|content_url }}" class="side-news-item">
+                        {% with item.thumbnail|default:item.hero_image as cover %}
+                            {% if cover %}
+                                <img src="{{ cover }}" alt="{{ item.title }}" class="side-news-img" loading="lazy" decoding="async">
+                            {% endif %}
+                        {% endwith %}
+                        <div class="side-news-info">
+                            <h4 class="side-news-title">{{ item.title }}</h4>
+                            <span class="side-news-date">{{ item.published_at|humanize_fa_time }}</span>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <p class="sidebar-tab-empty">مطلبی در این بخش پیدا نشد.</p>
+                    {% endfor %}
+                </div>
+
+                <div id="cat-popular" class="sidebar-tab-content">
+                    {% for item in popular_items|slice:":8" %}
+                    <a href="{{ item|content_url }}" class="side-news-item">
+                        {% with item.thumbnail|default:item.hero_image as cover %}
+                            {% if cover %}
+                                <img src="{{ cover }}" alt="{{ item.title }}" class="side-news-img" loading="lazy" decoding="async">
+                            {% endif %}
+                        {% endwith %}
+                        <div class="side-news-info">
+                            <h4 class="side-news-title">{{ item.title }}</h4>
+                            <span class="side-news-date">{{ item.published_at|humanize_fa_time }}</span>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <p class="sidebar-tab-empty">مطلبی در این بخش پیدا نشد.</p>
+                    {% endfor %}
+                </div>
+
+                <div id="cat-team" class="sidebar-tab-content">
+                    {% for item in team_pick_items|slice:":8" %}
+                    <a href="{{ item|content_url }}" class="side-news-item">
+                        {% with item.thumbnail|default:item.hero_image as cover %}
+                            {% if cover %}
+                                <img src="{{ cover }}" alt="{{ item.title }}" class="side-news-img" loading="lazy" decoding="async">
+                            {% endif %}
+                        {% endwith %}
+                        <div class="side-news-info">
+                            <h4 class="side-news-title">{{ item.title }}</h4>
+                            <span class="side-news-date">{{ item.published_at|humanize_fa_time }}</span>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <p class="sidebar-tab-empty">مطلبی در این بخش پیدا نشد.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function switchCategoryTab(evt, tabId) {
+        const section = evt.currentTarget.closest('.sidebar-tabs-section');
+        if (!section) return;
+
+        section.querySelectorAll('.sidebar-tab-btn').forEach((btn) => {
+            btn.classList.remove('active');
+        });
+        section.querySelectorAll('.sidebar-tab-content').forEach((tab) => {
+            tab.classList.remove('active');
+        });
+
+        const target = section.querySelector('#' + tabId);
+        if (!target) return;
+
+        evt.currentTarget.classList.add('active');
+        target.classList.add('active');
+    }
+</script>
+{% endblock %}

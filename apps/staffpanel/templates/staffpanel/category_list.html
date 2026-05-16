@@ -1,0 +1,47 @@
+{% extends "staffpanel/base.html" %}
+
+{% block title %}دسته‌بندی‌ها{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>دسته‌بندی‌ها</h1>
+    <form method="get" class="toolbar">
+        <input type="text" name="q" value="{{ q }}" placeholder="جست‌وجو بر اساس عنوان/اسلاگ">
+        <button class="btn" type="submit">جست‌وجو</button>
+        <a class="btn btn-secondary" href="{% url 'staffpanel:category-list' %}">بازنشانی</a>
+        <a class="btn" href="{% url 'staffpanel:category-new' %}">دسته‌بندی جدید</a>
+    </form>
+
+    {% if categories %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>عنوان</th>
+                    <th>اسلاگ</th>
+                    <th>والد</th>
+                    <th>فعال</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for item in categories %}
+                <tr>
+                    <td>{{ item.title }}</td>
+                    <td>{{ item.slug }}</td>
+                    <td>{% if item.parent %}{{ item.parent.title }}{% else %}-{% endif %}</td>
+                    <td>{% if item.is_active %}بله{% else %}خیر{% endif %}</td>
+                    <td class="actions">
+                        <a href="{% url 'staffpanel:category-edit' item.pk %}?next={{ request.get_full_path|urlencode }}">ویرایش</a>
+                        <a class="danger-link" href="{% url 'staffpanel:category-delete' item.pk %}?next={{ request.get_full_path|urlencode }}">حذف</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <p class="muted">دسته‌بندی‌ای پیدا نشد.</p>
+    {% endif %}
+</div>
+{% endblock %}

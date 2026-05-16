@@ -1,0 +1,102 @@
+{% extends "staffpanel/base.html" %}
+{% block title %}{% if is_new %}رتبه‌بندی جدید{% else %}ویرایش رتبه‌بندی{% endif %}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+        <h1 style="margin:0;">{% if is_new %}رتبه‌بندی جدید{% else %}ویرایش رتبه‌بندی{% endif %}</h1>
+        <a class="btn btn-secondary" href="{% url 'staffpanel:ranking-list' %}">بازگشت</a>
+    </div>
+
+    <form method="post" style="margin-top:14px;">
+        {% csrf_token %}
+
+        <div class="grid grid-2">
+            <div class="card">
+                <h3>تنظیمات لیست</h3>
+                <div class="form-row">
+                    {{ form.title.label_tag }}
+                    {{ form.title }}
+                    {% if form.title.errors %}{{ form.title.errors }}{% endif %}
+                </div>
+                <div class="form-row">
+                    {{ form.kind.label_tag }}
+                    {{ form.kind }}
+                    {% if form.kind.errors %}{{ form.kind.errors }}{% endif %}
+                </div>
+                <div class="form-row">
+                    {{ form.is_active.label_tag }}
+                    {{ form.is_active }}
+                    {% if form.is_active.errors %}{{ form.is_active.errors }}{% endif %}
+                    <span class="helptext">اگر چند رتبه‌بندی فعال باشد، در صفحه اصلی جدیدترین نمایش داده می‌شود.</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>ستون‌ها (اختیاری)</h3>
+                <div class="form-row">
+                    {{ form.columns_text.label_tag }}
+                    {{ form.columns_text }}
+                    {% if form.columns_text.errors %}{{ form.columns_text.errors }}{% endif %}
+                    {% if form.columns_text.help_text %}<span class="helptext">{{ form.columns_text.help_text }}</span>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top:14px;">
+            <h3>ورودی‌ها</h3>
+            <p class="muted" style="margin-top:-6px;">
+                رتبه / نام / امتیاز را وارد کنید. در صورت نیاز، داده اضافه را به صورت JSON قرار دهید.
+            </p>
+
+            {{ formset.management_form }}
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:90px;">رتبه</th>
+                            <th>نام</th>
+                            <th style="width:140px;">امتیاز</th>
+                            <th>داده اضافه (JSON)</th>
+                            <th style="width:90px;">حذف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for f in formset.forms %}
+                            <tr>
+                                <td>
+                                    {{ f.rank }}
+                                    {% if f.rank.errors %}{{ f.rank.errors }}{% endif %}
+                                </td>
+                                <td>
+                                    {{ f.name }}
+                                    {% if f.name.errors %}{{ f.name.errors }}{% endif %}
+                                </td>
+                                <td>
+                                    {{ f.score }}
+                                    {% if f.score.errors %}{{ f.score.errors }}{% endif %}
+                                </td>
+                                <td>
+                                    {{ f.data_json }}
+                                    {% if f.data_json.errors %}{{ f.data_json.errors }}{% endif %}
+                                </td>
+                                <td style="text-align:center;">
+                                    {{ f.DELETE }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="toolbar" style="margin-top:12px;">
+                <button class="btn" type="submit">ذخیره</button>
+                {% if not is_new %}
+                    <a class="btn btn-danger" href="{% url 'staffpanel:ranking-delete' ranking.pk %}">حذف</a>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

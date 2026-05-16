@@ -1,0 +1,37 @@
+
+{% load content_extras jalali_tags %}
+<article class="article-card">
+    <a href="{{ item|content_url }}" class="article-card-link">
+        {% if item.thumbnail or item.hero_image %}
+        <div class="article-card-image">
+            <img src="{{ item.thumbnail|default:item.hero_image }}" alt="{{ item.title }}" loading="lazy">
+        </div>
+        {% endif %}
+        
+        <div class="article-card-body">
+            <div class="article-card-meta">
+                <span class="badge {% if item.content_type == 'short_news' %}badge-primary{% else %}badge-secondary{% endif %}">
+                    {% if item.content_type == 'short_news' %}خبر{% else %}مقاله{% endif %}
+                </span>
+                <span><svg class="icon icon-calendar_30" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#calendar_30" xlink:href="{{ icon_sprite }}#calendar_30"></use></svg> {{ item.published_at|to_jalali:"%Y/%m/%d" }}</span>
+            </div>
+            
+            <h3 class="article-card-title">{{ item.title }}</h3>
+            
+            {% if item.excerpt %}
+            <p class="article-card-excerpt">{{ item.excerpt }}</p>
+            {% endif %}
+            
+            <div class="article-card-footer">
+                <div class="article-card-cats">
+                    {% for cat in item.categories|slice:":3" %}
+                    <span class="badge badge-outline">{{ cat.name|default:cat.title }}</span>
+                    {% endfor %}
+                </div>
+                <span class="badge badge-outline">
+                    <svg class="icon icon-clock" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#clock" xlink:href="{{ icon_sprite }}#clock"></use></svg> {{ item.read_time }} دقیقه
+                </span>
+            </div>
+        </div>
+    </a>
+</article>

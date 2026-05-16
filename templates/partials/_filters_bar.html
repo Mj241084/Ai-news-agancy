@@ -1,0 +1,44 @@
+
+<div class="filters-bar">
+    <form class="filters-row" method="GET" action="{{ filters_action_url }}">
+        {% if query %}
+        <input type="hidden" name="q" value="{{ query }}">
+        {% endif %}
+        <div class="filter-group">
+            <label class="filter-label" for="filter-type">نوع محتوا:</label>
+            <div class="filter-options">
+                <select id="filter-type" name="type" class="filter-btn">
+                    <option value="all" {% if filters.content_type == 'all' or not filters.content_type %}selected{% endif %}>همه</option>
+                    <option value="news" {% if filters.content_type == 'news' %}selected{% endif %}>اخبار</option>
+                    <option value="articles" {% if filters.content_type == 'articles' %}selected{% endif %}>مقالات</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="filter-group">
+            <label class="filter-label" for="filter-sort">مرتب‌سازی:</label>
+            <div class="filter-options">
+                <select id="filter-sort" name="sort" class="filter-btn">
+                    <option value="latest" {% if filters.sort == 'latest' or not filters.sort %}selected{% endif %}>جدیدترین</option>
+                    <option value="popular" {% if filters.sort == 'popular' %}selected{% endif %}>محبوب‌ترین</option>
+                    <option value="team" {% if filters.sort == 'team' %}selected{% endif %}>پیشنهادی تیم</option>
+                </select>
+            </div>
+        </div>
+
+        {% if subcategories %}
+        <div class="filter-group">
+            <span class="filter-label">زیردسته‌ها:</span>
+            <label class="filter-checkbox">
+                <input type="hidden" name="sub" value="0" {% if filters.include_subcats %}disabled{% endif %}>
+                <input type="checkbox" name="sub" value="1" {% if filters.include_subcats %}checked{% endif %} onchange="const fallback=this.previousElementSibling;if(fallback){fallback.disabled=this.checked;}">
+                <span>شامل زیردسته‌ها</span>
+            </label>
+        </div>
+        {% endif %}
+
+        <div class="filter-group">
+            <button type="submit" class="btn btn-primary">اعمال فیلتر</button>
+        </div>
+    </form>
+</div>

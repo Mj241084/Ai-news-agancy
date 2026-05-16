@@ -1,0 +1,88 @@
+{% extends "staffpanel/base.html" %}
+
+{% block title %}رتبه‌بندی‌ها{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+        <div>
+            <h1>رتبه‌بندی‌ها</h1>
+            <p class="muted" style="margin:0;">ایجاد، ویرایش و حذف لیست‌های رتبه‌بندی</p>
+        </div>
+        <a class="btn" href="{% url 'staffpanel:ranking-new' %}">رتبه‌بندی جدید</a>
+    </div>
+
+    <div style="margin-top:14px;">
+        <form method="get" class="toolbar" style="align-items:flex-end;">
+            <div class="form-row" style="min-width:200px; margin:0;">
+                <label>نوع</label>
+                <select name="kind">
+                    {% for value,label in kind_options %}
+                        <option value="{{ value }}" {% if filters.kind == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-row" style="min-width:200px; margin:0;">
+                <label>فقط فعال‌ها</label>
+                <select name="active">
+                    <option value="" {% if not filters.active %}selected{% endif %}>همه</option>
+                    <option value="1" {% if filters.active == "1" %}selected{% endif %}>فعال</option>
+                </select>
+            </div>
+            <button class="btn btn-secondary" type="submit">فیلتر</button>
+        </form>
+    </div>
+
+    <div style="margin-top:14px;">
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>عنوان</th>
+                        <th>نوع</th>
+                        <th>فعال</th>
+                        <th>تعداد ورودی</th>
+                        <th>آخرین ویرایش</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in rankings %}
+                        <tr>
+                            <td><strong>{{ r.title }}</strong></td>
+                            <td class="muted">{% if r.kind == "company" %}شرکت{% else %}مدل{% endif %}</td>
+                            <td>
+                                {% if r.is_active %}
+                                    <span class="badge badge-published">فعال</span>
+                                {% else %}
+                                    <span class="badge badge-draft">غیرفعال</span>
+                                {% endif %}
+                            </td>
+                            <td class="muted">{{ r.entries.count }}</td>
+                            <td class="muted">{{ r.updated_at|date:"Y/m/d H:i" }}</td>
+                            <td class="actions">
+                                <a href="{% url 'staffpanel:ranking-edit' r.pk %}">ویرایش</a>
+                                <a class="danger-link" href="{% url 'staffpanel:ranking-delete' r.pk %}">حذف</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="6" class="muted">رتبه‌بندی‌ای پیدا نشد.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a class="btn btn-secondary" href="?page={{ page_obj.previous_page_number }}&kind={{ filters.kind }}&active={{ filters.active }}">صفحه قبل</a>
+                {% endif %}
+                <span class="muted">صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
+                {% if page_obj.has_next %}
+                    <a class="btn btn-secondary" href="?page={{ page_obj.next_page_number }}&kind={{ filters.kind }}&active={{ filters.active }}">صفحه بعد</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

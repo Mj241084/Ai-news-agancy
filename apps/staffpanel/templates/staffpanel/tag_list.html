@@ -1,0 +1,46 @@
+{% extends "staffpanel/base.html" %}
+
+{% block title %}تگ‌ها{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>تگ‌ها</h1>
+    <form method="get" class="toolbar">
+        <input type="text" name="q" value="{{ q }}" placeholder="جست‌وجو بر اساس عنوان/اسلاگ">
+        <button class="btn" type="submit">جست‌وجو</button>
+        <a class="btn btn-secondary" href="{% url 'staffpanel:tag-list' %}">بازنشانی</a>
+        <a class="btn" href="{% url 'staffpanel:tag-new' %}">تگ جدید</a>
+    </form>
+
+    {% if tags %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>عنوان</th>
+                    <th>اسلاگ</th>
+                    <th>فعال</th>
+                    <th>ایندکس‌پذیر</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for item in tags %}
+                <tr>
+                    <td>{{ item.title }}</td>
+                    <td>{{ item.slug }}</td>
+                    <td>{% if item.is_active %}بله{% else %}خیر{% endif %}</td>
+                    <td>{% if item.is_indexable %}بله{% else %}خیر{% endif %}</td>
+                    <td class="actions">
+                        <a href="{% url 'staffpanel:tag-edit' item.pk %}?next={{ request.get_full_path|urlencode }}">ویرایش</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <p class="muted">تگی پیدا نشد.</p>
+    {% endif %}
+</div>
+{% endblock %}

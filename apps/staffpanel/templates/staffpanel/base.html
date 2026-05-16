@@ -1,0 +1,71 @@
+{% load staff_roles %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+{% static 'fonts/Vazir.woff2' as vazir_font %}
+{% static 'staffpanel/staff.css' as staffpanel_css %}
+{% static 'staffpanel/staff.js' as staffpanel_js %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}پنل استاف{% endblock %}</title>
+    {% comment %}<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">{% endcomment %}
+    <link rel="preload" href="{{ vazir_font }}" as="font" type="font/woff2">
+    <style>
+        @font-face {
+            font-family: "Vazir";
+            src: url("{{ vazir_font }}") format("woff2");
+            font-display: swap;
+            font-style: normal;
+            font-weight: 100 900;
+        }
+    </style>
+    <link rel="stylesheet" href="{{ staffpanel_css }}">
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+<header class="topbar">
+    <div class="title">پنل استاف AI News</div>
+    <nav>
+        {% if request.user|has_group:"editorial_admins" %}
+            <a href="{% url 'staffpanel:dashboard' %}">داشبورد</a>
+            <a href="{% url 'staffpanel:article-list' %}">همه مقالات</a>
+            <a href="{% url 'staffpanel:draft-list' %}">پیش‌نویس‌ها</a>
+            <a href="{% url 'staffpanel:article-new' %}">مقاله جدید</a>
+            <a href="{% url 'staffpanel:category-list' %}">دسته‌بندی‌ها</a>
+            <a href="{% url 'staffpanel:tag-list' %}">تگ‌ها</a>
+            <a href="{% url 'staffpanel:entity-list' %}">انتیتی‌ها</a>
+            <a href="{% url 'staffpanel:source-list' %}">منابع</a>
+            <a href="{% url 'staffpanel:ranking-list' %}">رتبه‌بندی‌ها</a>
+            <a href="{% url 'staffpanel:prompt-list' %}">پرامپت‌ها</a>
+            <a href="{% url 'staffpanel:ruleset-list' %}">قوانین نگارش</a>
+            <a href="{% url 'admin:index' %}" target="_blank" rel="noopener">جنگو ادمین</a>
+        {% else %}
+            <a href="{% url 'staffpanel:article-list' %}">مقالات</a>
+            <a href="{% url 'staffpanel:draft-list' %}">پیش‌نویس‌ها</a>
+            <a href="{% url 'staffpanel:tag-list' %}">تگ‌ها</a>
+            <a href="{% url 'staffpanel:entity-list' %}">انتیتی‌ها</a>
+            <a href="{% url 'staffpanel:source-list' %}">منابع</a>
+            <a href="{% url 'staffpanel:prompt-list' %}">قوانین/پرامپت‌ها</a>
+        {% endif %}
+    </nav>
+</header>
+
+<main class="container">
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+</main>
+
+<script src="{{ staffpanel_js }}" defer></script>
+{% block script_extra %}{% endblock %}
+</body>
+</html>

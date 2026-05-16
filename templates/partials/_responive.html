@@ -1,0 +1,187 @@
+/* ============================================
+   HEADER & FOOTER RESPONSIVE OVERRIDES
+   Add this to your base.html <style> section
+   or separate CSS file
+   ============================================ */
+
+/* Tablet (768px - 1024px) */
+@media (max-width: 1024px) {
+    .container {
+        width: 100%;
+        padding: 0 var(--sp-4);
+    }
+    
+    .main-nav {
+        gap: var(--sp-4);
+    }
+    
+    .search-input {
+        width: 180px;
+    }
+}
+
+/* Mobile (< 768px) */
+@media (max-width: 768px) {
+    /* Header Responsive */
+    .site-header {
+        height: auto;
+        min-height: var(--header-h);
+    }
+    
+    .header-inner {
+        flex-wrap: wrap;
+        padding: var(--sp-3) 0;
+        gap: var(--sp-3);
+    }
+    
+    .logo {
+        font-size: var(--fs-5);
+    }
+    
+    .main-nav {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        gap: var(--sp-3);
+        padding-top: var(--sp-2);
+        border-top: 1px solid rgba(255,255,255,0.1);
+        margin-top: var(--sp-2);
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox */
+    }
+    
+    .main-nav::-webkit-scrollbar {
+        display: none; /* Chrome/Safari */
+    }
+    
+    .nav-link {
+        font-size: var(--fs-6);
+        white-space: nowrap;
+        padding: var(--sp-2) var(--sp-1);
+    }
+    
+    .nav-link.active::after {
+        bottom: -2px;
+    }
+    
+    .header-actions {
+        flex: 1;
+        justify-content: flex-end;
+        gap: var(--sp-2);
+    }
+    
+    .search-form {
+        display: none; /* Hide search on mobile */
+    }
+    
+    .btn span {
+        display: none; /* Hide button text on mobile */
+    }
+    
+    .btn {
+        padding: var(--sp-2);
+    }
+    
+    .btn i {
+        margin: 0;
+    }
+    
+    /* Footer Responsive */
+    .site-footer {
+        padding: var(--sp-5) 0 var(--sp-4);
+    }
+    
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--sp-5);
+        margin-bottom: var(--sp-5);
+    }
+    
+    .footer-col:first-child {
+        grid-column: 1 / -1;
+        text-align: center;
+    }
+    
+    .footer-brand {
+        justify-content: center;
+    }
+    
+    .footer-desc {
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    
+    .footer-bottom {
+        flex-direction: column;
+        gap: var(--sp-2);
+        text-align: center;
+        font-size: var(--fs-7);
+    }
+}
+
+/* Small Mobile (< 480px) */
+@media (max-width: 480px) {
+    .container {
+        padding: 0 var(--sp-3);
+    }
+    
+    /* Header */
+    .logo span {
+        font-size: var(--fs-5);
+    }
+    
+    .main-nav {
+        gap: var(--sp-2);
+    }
+    
+    .nav-link {
+        font-size: var(--fs-7);
+        padding: var(--sp-2);
+    }
+    
+    /* Footer Single Column */
+    .footer-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: var(--sp-4);
+    }
+    
+    .footer-col {
+        padding-bottom: var(--sp-4);
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .footer-col:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    
+    .footer-links {
+        align-items: center;
+    }
+    
+    .footer-title {
+        margin-bottom: var(--sp-2);
+    }
+    
+    .footer-brand {
+        justify-content: center;
+        font-size: var(--fs-5);
+    }
+}
+
+/* Extra Small Mobile (< 360px) */
+@media (max-width: 360px) {
+    .header-actions {
+        gap: var(--sp-1);
+    }
+    
+    .btn {
+        padding: var(--sp-1) var(--sp-2);
+    }
+    
+    .nav-link {
+        font-size: 11px;
+    }
+}

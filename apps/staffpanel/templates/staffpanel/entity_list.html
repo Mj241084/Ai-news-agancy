@@ -1,0 +1,62 @@
+{% extends "staffpanel/base.html" %}
+
+{% block title %}انتیتی‌ها{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>انتیتی‌ها</h1>
+    <form method="get" class="toolbar">
+        <input type="text" name="q" value="{{ q }}" placeholder="جست‌وجو بر اساس نام/اسلاگ">
+        <button class="btn" type="submit">جست‌وجو</button>
+        <a class="btn btn-secondary" href="{% url 'staffpanel:entity-list' %}">بازنشانی</a>
+        <a class="btn" href="{% url 'staffpanel:entity-new' %}">انتیتی جدید</a>
+    </form>
+
+    {% if entities %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>نام</th>
+                    <th>نوع</th>
+                    <th>اسلاگ</th>
+                    <th>فعال</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for item in entities %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>
+                        {% if item.type == "company" %}
+                            شرکت
+                        {% elif item.type == "person" %}
+                            شخص
+                        {% elif item.type == "model" %}
+                            مدل
+                        {% elif item.type == "product" %}
+                            محصول
+                        {% elif item.type == "lab" %}
+                            آزمایشگاه
+                        {% elif item.type == "dataset" %}
+                            مجموعه‌داده
+                        {% else %}
+                            سایر
+                        {% endif %}
+                    </td>
+                    <td>{{ item.slug }}</td>
+                    <td>{% if item.is_active %}بله{% else %}خیر{% endif %}</td>
+                    <td class="actions">
+                        <a href="{% url 'staffpanel:entity-edit' item.pk %}?next={{ request.get_full_path|urlencode }}">ویرایش</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <p class="muted">انتیتی‌ای پیدا نشد.</p>
+    {% endif %}
+</div>
+{% endblock %}

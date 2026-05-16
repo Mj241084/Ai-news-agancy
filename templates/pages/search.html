@@ -1,0 +1,94 @@
+
+{% extends 'base.html' %}
+
+{% block title %}نتایج جستجو{% endblock %}
+
+{% block extra_css %}
+    .search-results-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--sp-4);
+    }
+
+    .search-results-grid .article-card {
+        height: 100%;
+    }
+
+    .search-results-grid .article-card-link {
+        display: block;
+        height: 100%;
+    }
+
+    @media (max-width: 1100px) {
+        .search-results-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="page-title">نتایج جستجو</h1>
+        {% if query %}
+        <p class="page-description">
+            <span style="color: var(--c-muted);">عبارت جستجو:</span>
+            <strong style="color: var(--c-text);">"{{ query }}"</strong>
+            {% if total_results %}
+            <span style="color: var(--c-muted);">({{ total_results }} نتیجه)</span>
+            {% endif %}
+        </p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container">
+    {% if query %}
+        {% include 'partials/_filters_bar.html' with filters_action_url=request.path %}
+        
+        <div class="grid-2">
+            <div class="main-column">
+                {% if items %}
+                    <div class="search-results-grid">
+                        {% for item in items %}
+                            {% include 'partials/_article_card.html' with item=item %}
+                        {% endfor %}
+                    </div>
+                    
+                    {% include 'partials/_pagination.html' %}
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <svg class="icon icon-search" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#search" xlink:href="{{ icon_sprite }}#search"></use></svg>
+                        </div>
+                        <h3 class="empty-state-title">نتیجه‌ای یافت نشد</h3>
+                        <p class="empty-state-text">برای عبارت "{{ query }}" هیچ مطلبی پیدا نشد. لطفاً عبارت دیگری امتحان کنید.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">
+                        <svg class="icon icon-idea" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#idea" xlink:href="{{ icon_sprite }}#idea"></use></svg>
+                        نکات جستجو
+                    </h3>
+                    <ul style="font-size: var(--fs-6); color: var(--c-muted); line-height: 2; padding-right: var(--sp-4);">
+                        <li>کلمات کلیدی مرتبط را امتحان کنید</li>
+                        <li>از عبارات کوتاه‌تر استفاده کنید</li>
+                        <li>نام نویسنده یا دسته‌بندی را جستجو کنید</li>
+                    </ul>
+                </div>
+            </aside>
+        </div>
+    {% else %}
+        <div class="empty-state" style="padding: var(--sp-8) 0;">
+            <div class="empty-state-icon">
+                <svg class="icon icon-keyboard" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#keyboard" xlink:href="{{ icon_sprite }}#keyboard"></use></svg>
+            </div>
+            <h3 class="empty-state-title">عبارت جستجو را وارد کنید</h3>
+            <p class="empty-state-text">برای یافتن مطالب مورد نظر خود، عبارتی در کادر جستجو وارد کنید.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

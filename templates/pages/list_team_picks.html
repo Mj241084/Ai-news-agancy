@@ -1,0 +1,52 @@
+
+{% extends 'base.html' %}
+
+{% block title %}پیشنهادات تیم{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="page-title">پیشنهادات تیم تحریریه</h1>
+        <p class="page-description">مطالب منتخب و برتر توسط تیم تحریریه AI News</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="grid-2">
+        <div class="main-column">
+            {% if items %}
+                <div class="articles-list">
+                    {% for item in items %}
+                        {% include 'partials/_article_card.html' with item=item %}
+                    {% endfor %}
+                </div>
+                
+                {% include 'partials/_pagination.html' %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <svg class="icon icon-star" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#star" xlink:href="{{ icon_sprite }}#star"></use></svg>
+                    </div>
+                    <h3 class="empty-state-title">مطلبی یافت نشد</h3>
+                    <p class="empty-state-text">هنوز مطلبی توسط تیم تحریریه انتخاب نشده است.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <svg class="icon icon-star_filled" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#star_filled" xlink:href="{{ icon_sprite }}#star_filled"></use></svg>
+                    معیارهای انتخاب
+                </h3>
+                <ul style="font-size: var(--fs-6); color: var(--c-muted); line-height: 2; padding-right: var(--sp-4);">
+                    <li>ارزش خبری و اطلاع‌رسانی</li>
+                    <li>عمق تحلیل و کیفیت محتوا</li>
+                    <li>تازگی و اهمیت موضوع</li>
+                    <li>ارزش آموزشی برای مخاطب</li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}

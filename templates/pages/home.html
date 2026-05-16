@@ -1,0 +1,949 @@
+{% extends 'base.html' %}
+{% load content_extras %}
+
+{% block title %}خانه - AI News{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* -----------------------------------------
+       Desktop Only Layout Enforcement
+       ----------------------------------------- */
+    body {
+        min-width: 1200px;
+        overflow-x: auto;
+    }
+
+    .desktop-home-container {
+        width: 1200px;
+        margin: 20px auto;
+        display: grid;
+        /* ستون اول (راست) 850 پیکسل، ستون دوم (چپ) 320 پیکسل */
+        grid-template-columns: 850px 320px;
+        gap: 30px;
+        padding: 0 15px;
+    }
+
+    /* -----------------------------------------
+       Common Card Styles
+       ----------------------------------------- */
+    .home-card {
+        background-color: var(--c-bg);
+        border: 1px solid var(--c-border);
+        border-radius: var(--r-3);
+        box-shadow: var(--sh-1);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .section-title {
+        font-size: var(--fs-4);
+        font-weight: var(--fw-bold);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--c-accent);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--c-primary);
+    }
+
+    .empty-box {
+        border: 1px dashed var(--c-border);
+        border-radius: var(--r-2);
+        padding: 18px;
+        font-size: var(--fs-6);
+        color: var(--c-muted);
+    }
+
+    /* -----------------------------------------
+       Main Column Layout (Visually Right)
+       ----------------------------------------- */
+    .main-column {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    /* Sliders General */
+    .slider-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: var(--r-2);
+        user-select: none;
+    }
+
+    .slider-track {
+        display: flex;
+        gap: 20px;
+        will-change: transform;
+    }
+
+    .slider-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        background-color: var(--c-primary);
+        color: var(--c-bg);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        box-shadow: var(--sh-2);
+        opacity: 0.8;
+        transition: opacity 0.2s, background-color 0.2s;
+    }
+
+    .slider-btn:hover {
+        opacity: 1;
+        background-color: var(--c-accent);
+    }
+
+    /* در حالت RTL، دکمه قبلی سمت راست و بعدی سمت چپ است */
+    .slider-btn.prev { right: 10px; }
+    .slider-btn.next { left: 10px; }
+
+    /* Featured News Slider */
+    .featured-slider .slide {
+        min-width: 100%;
+        height: 350px;
+        position: relative;
+        border-radius: var(--r-2);
+        overflow: hidden;
+        flex-shrink: 0;
+        background-color: var(--c-surface);
+    }
+
+    .featured-slide-link {
+        display: block;
+        width: 100%;
+        height: 100%;
+        color: inherit;
+    }
+
+    .featured-slider .slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        pointer-events: none;
+    }
+
+    .featured-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+        padding: 40px 20px 20px;
+        color: white;
+    }
+
+    .featured-overlay h2 {
+        font-size: var(--fs-3);
+        margin-bottom: 8px;
+        color: #fff;
+    }
+
+    .featured-overlay p {
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 8px;
+        font-size: var(--fs-6);
+    }
+
+    .featured-time {
+        font-size: var(--fs-7);
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Top Articles Slider */
+    .articles-slider .slide {
+        min-width: calc(33.333% - 13.33px);
+        background: var(--c-surface);
+        border-radius: var(--r-2);
+        overflow: hidden;
+        border: 1px solid var(--c-border);
+        flex-shrink: 0;
+    }
+
+    .slide-link {
+        display: block;
+        color: var(--c-text);
+        height: 100%;
+    }
+
+    .articles-slider .slide img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        pointer-events: none;
+    }
+
+    .articles-slider .slide-content {
+        padding: 15px;
+    }
+
+    .articles-slider h3 {
+        font-size: var(--fs-6);
+        margin-bottom: 10px;
+        line-height: 1.6;
+        min-height: 44px;
+    }
+
+    .slider-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        color: var(--c-muted);
+        font-size: var(--fs-7);
+    }
+
+    /* Bottom Split Layout */
+    .bottom-split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        align-items: stretch;
+    }
+
+    .bottom-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    /* Poll */
+    .poll-slot-loading {
+        margin: 0;
+        color: var(--c-muted);
+        font-size: var(--fs-6);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .icon-spin {
+        animation: home-icon-spin 1s linear infinite;
+    }
+
+    @keyframes home-icon-spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .poll-form {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .poll-title {
+        font-size: var(--fs-5);
+        margin: 0;
+    }
+
+    .poll-question-text {
+        margin-bottom: 8px;
+        font-size: var(--fs-6);
+        font-weight: var(--fw-semibold);
+    }
+
+    .poll-choices {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .poll-choice {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: var(--fs-6);
+    }
+
+    .poll-feedback {
+        margin: 0;
+        font-size: var(--fs-6);
+        color: var(--c-accent);
+        font-weight: var(--fw-bold);
+    }
+
+    /* Videos Section */
+    .video-item {
+        position: relative;
+        border-radius: var(--r-2);
+        overflow: hidden;
+        margin-bottom: 10px;
+        cursor: pointer;
+        display: block;
+    }
+
+    .video-item img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        transition: transform 0.3s;
+    }
+
+    .video-item:hover img {
+        transform: scale(1.05);
+    }
+
+    .video-play-btn {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 50px;
+        height: 50px;
+        background-color: rgba(10, 25, 41, 0.8);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+    }
+
+    .video-title {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 10px;
+        font-size: var(--fs-6);
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    .video-meta {
+        margin: 0 4px 12px;
+        color: var(--c-muted);
+        font-size: var(--fs-7);
+    }
+
+    /* AI Companies Ranking */
+    .ranking-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .ranking-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 10px;
+        background-color: var(--c-surface);
+        border-radius: var(--r-2);
+        transition: transform 0.2s;
+    }
+
+    .ranking-item:hover {
+        transform: translateX(-5px);
+        background-color: var(--c-border);
+    }
+
+    .ranking-number {
+        font-size: var(--fs-4);
+        font-weight: var(--fw-bold);
+        color: var(--c-accent);
+        width: 30px;
+        text-align: center;
+    }
+
+    .ranking-name {
+        font-weight: var(--fw-semibold);
+        flex: 1;
+    }
+
+    .ranking-score {
+        background-color: var(--c-primary);
+        color: white;
+        padding: 3px 8px;
+        border-radius: var(--r-1);
+        font-size: var(--fs-7);
+    }
+
+    /* -----------------------------------------
+       Sidebar Column (Visually Left)
+       ----------------------------------------- */
+    .sidebar-column {
+        height: 100%;
+    }
+
+    .tabs-card {
+        height: 100%;
+        min-height: 800px;
+    }
+
+    .tabs-header {
+        display: flex;
+        border-bottom: 1px solid var(--c-border);
+        margin-bottom: 15px;
+    }
+
+    .tab-btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 10px 5px;
+        font-size: var(--fs-6);
+        font-weight: var(--fw-semibold);
+        color: var(--c-muted);
+        background: transparent;
+        border: none;
+        border-bottom: 3px solid transparent;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .tab-btn.active {
+        color: var(--c-accent);
+        border-bottom-color: var(--c-accent);
+    }
+
+    .tab-btn:hover:not(.active) {
+        color: var(--c-primary);
+    }
+
+    .tab-content {
+        display: none;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .tab-content.active {
+        display: flex;
+    }
+
+    .side-news-item {
+        display: flex;
+        gap: 10px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--c-surface);
+        color: inherit;
+    }
+
+    .side-news-item:last-child {
+        border-bottom: none;
+    }
+
+    .side-news-img {
+        width: 80px;
+        height: 80px;
+        border-radius: var(--r-2);
+        object-fit: cover;
+        background-color: var(--c-surface);
+    }
+
+    .side-news-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .side-news-title {
+        font-size: var(--fs-6);
+        font-weight: var(--fw-bold);
+        color: var(--c-text);
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .side-news-date {
+        font-size: var(--fs-7);
+        color: var(--c-muted);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="desktop-home-container">
+
+    <!-- ==========================================
+         ستون اصلی (سمت راست در حالت RTL)
+         ========================================== -->
+    <main class="main-column">
+
+        <!-- ردیف اول: اسلایدر اخبار ویژه -->
+        <section class="home-card">
+            <h2 class="section-title">اخبار ویژه</h2>
+            {% if team_pick_items or items %}
+                <div class="slider-container featured-slider" id="featuredSlider">
+                    <button class="slider-btn prev" onclick="moveInfiniteSlide('featuredSlider', -1)">❮</button>
+                    <div class="slider-track">
+                        {% if team_pick_items %}
+                            {% for item in team_pick_items|slice:":8" %}
+                                <article class="slide">
+                                    <a href="{{ item|content_url }}" class="featured-slide-link">
+                                        {% with item.hero_image|default:item.thumbnail as cover %}
+                                            {% if cover %}
+                                                {% if forloop.first %}
+                                                    <img src="{{ cover }}" alt="{{ item.title }}" draggable="false" loading="eager" fetchpriority="high" decoding="async">
+                                                {% else %}
+                                                    <img src="{{ cover }}" alt="{{ item.title }}" draggable="false" loading="lazy" decoding="async">
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endwith %}
+                                        <div class="featured-overlay">
+                                            <h2>{{ item.title }}</h2>
+                                            {% if item.excerpt %}
+                                                <p>{{ item.excerpt|truncatechars:140 }}</p>
+                                            {% endif %}
+                                            <span class="featured-time">{{ item.published_at|humanize_fa_time }}</span>
+                                        </div>
+                                    </a>
+                                </article>
+                            {% endfor %}
+                        {% else %}
+                            {% for item in items|slice:":8" %}
+                                <article class="slide">
+                                    <a href="{{ item|content_url }}" class="featured-slide-link">
+                                        {% with item.hero_image|default:item.thumbnail as cover %}
+                                            {% if cover %}
+                                                {% if forloop.first %}
+                                                    <img src="{{ cover }}" alt="{{ item.title }}" draggable="false" loading="eager" fetchpriority="high" decoding="async">
+                                                {% else %}
+                                                    <img src="{{ cover }}" alt="{{ item.title }}" draggable="false" loading="lazy" decoding="async">
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endwith %}
+                                        <div class="featured-overlay">
+                                            <h2>{{ item.title }}</h2>
+                                            {% if item.excerpt %}
+                                                <p>{{ item.excerpt|truncatechars:140 }}</p>
+                                            {% endif %}
+                                            <span class="featured-time">{{ item.published_at|humanize_fa_time }}</span>
+                                        </div>
+                                    </a>
+                                </article>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <button class="slider-btn next" onclick="moveInfiniteSlide('featuredSlider', 1)">❯</button>
+                </div>
+            {% else %}
+                <div class="empty-box">محتوایی برای نمایش در اخبار ویژه وجود ندارد.</div>
+            {% endif %}
+        </section>
+
+        <!-- ردیف دوم: اسلایدر برترین مقالات -->
+        <section class="home-card">
+            <h2 class="section-title">برترین مقالات</h2>
+            {% if popular_items %}
+                <div class="slider-container articles-slider" id="articlesSlider">
+                    <button class="slider-btn prev" onclick="moveInfiniteSlide('articlesSlider', -1)">❮</button>
+                    <div class="slider-track">
+                        {% for item in popular_items|slice:":12" %}
+                            <article class="slide">
+                                <a href="{{ item|content_url }}" class="slide-link">
+                                    {% with item.thumbnail|default:item.hero_image as cover %}
+                                        {% if cover %}
+                                            <img src="{{ cover }}" alt="{{ item.title }}" draggable="false" loading="lazy" decoding="async">
+                                        {% endif %}
+                                    {% endwith %}
+                                    <div class="slide-content">
+                                        <h3>{{ item.title }}</h3>
+                                        <div class="slider-meta">
+                                            <span class="badge badge-outline">
+                                                {% if item.content_type == 'short_news' %}خبر{% else %}مقاله{% endif %}
+                                            </span>
+                                            <span><svg class="icon icon-clock" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#clock" xlink:href="{{ icon_sprite }}#clock"></use></svg> {{ item.published_at|humanize_fa_time }}</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </article>
+                        {% endfor %}
+                    </div>
+                    <button class="slider-btn next" onclick="moveInfiniteSlide('articlesSlider', 1)">❯</button>
+                </div>
+            {% else %}
+                <div class="empty-box">محتوایی برای نمایش در این بخش وجود ندارد.</div>
+            {% endif %}
+        </section>
+
+        <!-- ردیف سوم: تقسیم دوگانه -->
+        <div class="bottom-split">
+
+            <!-- نیمه راست: انباشته شده (نظرسنجی + رتبه‌بندی) -->
+            <div class="bottom-stack">
+                <section class="home-card">
+                    <h2 class="section-title">نظرسنجی هفته</h2>
+                    <div id="poll-box">
+                        <div id="poll-slot">
+                            <p class="poll-slot-loading">
+                                <svg class="icon icon-loader icon-spin" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#loader" xlink:href="{{ icon_sprite }}#loader"></use></svg>
+                                <span>در حال بارگذاری نظرسنجی...</span>
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="home-card" style="flex: 1;">
+                    <h2 class="section-title">{% if ranking %}{{ ranking.title }}{% else %}رتبه‌بندی{% endif %}</h2>
+                    {% if ranking and ranking.entries %}
+                        <div class="ranking-list">
+                            {% for entry in ranking.entries|slice:":8" %}
+                                <div class="ranking-item">
+                                    <span class="ranking-number">{{ entry.rank }}</span>
+                                    <span class="ranking-name">{{ entry.name }}</span>
+                                    <span class="ranking-score">{{ entry.score|default_if_none:'-' }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-box">رتبه‌بندی فعالی برای نمایش ثبت نشده است.</div>
+                    {% endif %}
+                </section>
+            </div>
+
+            <!-- نیمه چپ: آخرین ویدئوها -->
+            <section class="home-card">
+                <h2 class="section-title">
+                    <svg class="icon icon-video_playlist" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#video_playlist" xlink:href="{{ icon_sprite }}#video_playlist"></use></svg>
+                    <span>آخرین ویدئوها</span>
+                </h2>
+                {% if latest_videos %}
+                    <div class="video-list">
+                        {% for item in latest_videos %}
+                            <a href="{{ item|content_url }}" class="video-item">
+                                {% with item.video_thumbnail|default:item.thumbnail|default:item.hero_image as video_cover %}
+                                    {% if video_cover %}
+                                        <img src="{{ video_cover }}" alt="{{ item.title }}" draggable="false" loading="lazy" decoding="async">
+                                    {% endif %}
+                                {% endwith %}
+                                <div class="video-play-btn"><svg class="icon icon-play" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#play" xlink:href="{{ icon_sprite }}#play"></use></svg></div>
+                                <h4 class="video-title">{{ item.title }}</h4>
+                            </a>
+                            <p class="video-meta"><svg class="icon icon-clock" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#clock" xlink:href="{{ icon_sprite }}#clock"></use></svg> {{ item.published_at|humanize_fa_time }}</p>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-box">ویدیویی برای نمایش وجود ندارد.</div>
+                {% endif %}
+            </section>
+        </div>
+    </main>
+
+    <!-- ==========================================
+         ستون سایدبار (سمت چپ در حالت RTL)
+         ========================================== -->
+    <aside class="sidebar-column">
+        <div class="home-card tabs-card">
+            <div class="tabs-header">
+                <button class="tab-btn active" onclick="switchTab(event, 'latest')">
+                    <span>آخرین اخبار</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab(event, 'visited')">محبوب‌ترین</button>
+                <button class="tab-btn" onclick="switchTab(event, 'discussed')">پیشنهاد تیم</button>
+            </div>
+
+            <!-- محتوای تب آخرین اخبار -->
+            <div id="latest" class="tab-content active">
+                {% for item in items|slice:":8" %}
+                    <a href="{{ item|content_url }}" class="side-news-item">
+                        {% with item.thumbnail|default:item.hero_image as cover %}
+                            {% if cover %}
+                                <img src="{{ cover }}" alt="{{ item.title }}" class="side-news-img" draggable="false" loading="lazy" decoding="async">
+                            {% endif %}
+                        {% endwith %}
+                        <div class="side-news-info">
+                            <h4 class="side-news-title">{{ item.title }}</h4>
+                            <span class="side-news-date">{{ item.published_at|humanize_fa_time }}</span>
+                        </div>
+                    </a>
+                {% empty %}
+                    <div class="empty-box">مطلبی در این بخش پیدا نشد.</div>
+                {% endfor %}
+            </div>
+
+            <!-- محتوای تب محبوب‌ترین -->
+            <div id="visited" class="tab-content">
+                {% for item in popular_items|slice:":8" %}
+                    <a href="{{ item|content_url }}" class="side-news-item">
+                        {% with item.thumbnail|default:item.hero_image as cover %}
+                            {% if cover %}
+                                <img src="{{ cover }}" alt="{{ item.title }}" class="side-news-img" draggable="false" loading="lazy" decoding="async">
+                            {% endif %}
+                        {% endwith %}
+                        <div class="side-news-info">
+                            <h4 class="side-news-title">{{ item.title }}</h4>
+                            <span class="side-news-date">{{ item.published_at|humanize_fa_time }}</span>
+                        </div>
+                    </a>
+                {% empty %}
+                    <div class="empty-box">مطلبی در این بخش پیدا نشد.</div>
+                {% endfor %}
+            </div>
+
+            <!-- محتوای تب پیشنهاد تیم -->
+            <div id="discussed" class="tab-content">
+                {% for item in team_pick_items|slice:":8" %}
+                    <a href="{{ item|content_url }}" class="side-news-item">
+                        {% with item.thumbnail|default:item.hero_image as cover %}
+                            {% if cover %}
+                                <img src="{{ cover }}" alt="{{ item.title }}" class="side-news-img" draggable="false" loading="lazy" decoding="async">
+                            {% endif %}
+                        {% endwith %}
+                        <div class="side-news-info">
+                            <h4 class="side-news-title">{{ item.title }}</h4>
+                            <span class="side-news-date">{{ item.published_at|humanize_fa_time }}</span>
+                        </div>
+                    </a>
+                {% empty %}
+                    <div class="empty-box">مطلبی در این بخش پیدا نشد.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </aside>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // -----------------------------------------
+    // Tabs Logic
+    // -----------------------------------------
+    function switchTab(evt, tabId) {
+        var tabContents = document.getElementsByClassName('tab-content');
+        for (var i = 0; i < tabContents.length; i++) {
+            tabContents[i].style.display = 'none';
+            tabContents[i].classList.remove('active');
+        }
+
+        var tabBtns = document.getElementsByClassName('tab-btn');
+        for (var j = 0; j < tabBtns.length; j++) {
+            tabBtns[j].classList.remove('active');
+        }
+
+        var currentTab = document.getElementById(tabId);
+        if (!currentTab) return;
+
+        currentTab.style.display = 'flex';
+        currentTab.classList.add('active');
+        evt.currentTarget.classList.add('active');
+    }
+
+    // -----------------------------------------
+    // Optimized Infinite Seamless Sliders Logic (RTL)
+    // -----------------------------------------
+    const isTransitioning = {};
+    const ANIMATION_DURATION = 400;
+
+    function moveInfiniteSlide(sliderId, direction) {
+        if (isTransitioning[sliderId]) return;
+
+        const sliderContainer = document.getElementById(sliderId);
+        if (!sliderContainer) return;
+
+        const track = sliderContainer.querySelector('.slider-track');
+        if (!track || !track.firstElementChild || track.children.length < 2) {
+            return;
+        }
+
+        isTransitioning[sliderId] = true;
+        const firstSlide = track.firstElementChild;
+        const slideWidth = firstSlide.getBoundingClientRect().width;
+
+        let gap = 0;
+        const computedGap = window.getComputedStyle(track).gap;
+        if (computedGap && computedGap !== 'normal') {
+            gap = parseFloat(computedGap);
+        }
+
+        const moveDistance = slideWidth + gap;
+
+        if (direction === 1) {
+            track.style.transition = `transform ${ANIMATION_DURATION}ms ease-in-out`;
+            track.style.transform = `translateX(${moveDistance}px)`;
+
+            setTimeout(() => {
+                track.style.transition = 'none';
+                track.appendChild(track.firstElementChild);
+                track.style.transform = 'translateX(0)';
+                void track.offsetWidth;
+                isTransitioning[sliderId] = false;
+            }, ANIMATION_DURATION);
+
+        } else if (direction === -1) {
+            track.style.transition = 'none';
+            track.prepend(track.lastElementChild);
+            track.style.transform = `translateX(${moveDistance}px)`;
+            void track.offsetWidth;
+
+            requestAnimationFrame(() => {
+                track.style.transition = `transform ${ANIMATION_DURATION}ms ease-in-out`;
+                track.style.transform = 'translateX(0)';
+
+                setTimeout(() => {
+                    isTransitioning[sliderId] = false;
+                }, ANIMATION_DURATION);
+            });
+        } else {
+            isTransitioning[sliderId] = false;
+        }
+    }
+
+    // -----------------------------------------
+    // Poll AJAX Logic
+    // -----------------------------------------
+    function getCookie(name) {
+        const parts = document.cookie ? document.cookie.split(';') : [];
+        for (const part of parts) {
+            const item = part.trim();
+            if (item.startsWith(name + '=')) {
+                return decodeURIComponent(item.slice(name.length + 1));
+            }
+        }
+        return '';
+    }
+
+    function disableForm(form) {
+        form.querySelectorAll('input, button, select, textarea').forEach((el) => {
+            el.disabled = true;
+        });
+    }
+
+    function collectAnswers(form) {
+        const pollId = Number(form.dataset.pollId || form.querySelector('input[name="poll_id"]')?.value);
+        if (!pollId) {
+            return null;
+        }
+
+        const answers = {};
+        let valid = true;
+        form.querySelectorAll('.poll-question').forEach((questionEl) => {
+            const questionId = Number(questionEl.dataset.questionId);
+            const kind = (questionEl.dataset.kind || '').trim();
+            const selected = Array.from(questionEl.querySelectorAll('input:checked'))
+                .map((input) => Number(input.value))
+                .filter((value) => Number.isInteger(value) && value > 0);
+
+            answers[questionId] = selected;
+            if (selected.length === 0) {
+                valid = false;
+            } else if (kind === 'single' && selected.length !== 1) {
+                valid = false;
+            }
+        });
+
+        if (!valid) {
+            return null;
+        }
+
+        return { poll_id: pollId, answers };
+    }
+
+    function wirePollForm() {
+        const form = document.getElementById('active-poll-form');
+        if (!form) {
+            return;
+        }
+
+        const feedback = form.querySelector('#poll-feedback');
+        const submitBtn = form.querySelector('#poll-submit-btn');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const payload = collectAnswers(form);
+            if (!payload) {
+                if (feedback) {
+                    feedback.textContent = 'پاسخ همه سوال‌ها الزامی است.';
+                    feedback.style.display = 'block';
+                }
+                return;
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+            }
+
+            let succeeded = false;
+            try {
+                const response = await fetch('/ajax/polls/submit/', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    body: JSON.stringify(payload),
+                });
+                const data = await response.json().catch(() => ({}));
+
+                if (response.ok && data.ok) {
+                    if (feedback) {
+                        feedback.textContent = 'ثبت شد ✅';
+                        feedback.style.display = 'block';
+                    }
+                    disableForm(form);
+                    succeeded = true;
+                    return;
+                }
+
+                if (feedback) {
+                    feedback.textContent = data.message || 'خطا در ثبت نظرسنجی.';
+                    feedback.style.display = 'block';
+                }
+            } catch (err) {
+                if (feedback) {
+                    feedback.textContent = 'خطا در ارتباط با سرور.';
+                    feedback.style.display = 'block';
+                }
+            } finally {
+                if (submitBtn && !succeeded) {
+                    submitBtn.disabled = false;
+                }
+            }
+        });
+    }
+
+    async function loadActivePoll() {
+        const pollSlot = document.getElementById('poll-slot');
+        if (!pollSlot) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/ajax/polls/active/', {
+                method: 'GET',
+                credentials: 'same-origin',
+            });
+
+            if (!response.ok) {
+                pollSlot.innerHTML = '<p class="poll-slot-loading">نظرسنجی فعالی وجود ندارد.</p>';
+                return;
+            }
+
+            const data = await response.json().catch(() => ({}));
+            if (!data || !data.has_poll || !data.html) {
+                pollSlot.innerHTML = '<p class="poll-slot-loading">نظرسنجی فعالی وجود ندارد.</p>';
+                return;
+            }
+
+            pollSlot.innerHTML = data.html;
+            wirePollForm();
+        } catch (err) {
+            pollSlot.innerHTML = '<p class="poll-slot-loading">خطا در دریافت نظرسنجی.</p>';
+        }
+    }
+
+    window.addEventListener('load', function () {
+        loadActivePoll();
+    });
+</script>
+{% endblock %}

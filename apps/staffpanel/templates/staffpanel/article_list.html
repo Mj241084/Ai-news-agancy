@@ -1,0 +1,131 @@
+{% extends "staffpanel/base.html" %}
+{% load staff_roles %}
+
+{% block title %}همه مقالات{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>همه مقالات</h1>
+    <form method="get" class="grid grid-2" style="margin-bottom: 14px;">
+        <div class="form-row">
+            <label>وضعیت</label>
+            <select name="status">
+                {% for value, label in status_options %}
+                    <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-row">
+            <label>نوع محتوا</label>
+            <select name="type">
+                {% for value, label in type_options %}
+                    <option value="{{ value }}" {% if filters.type == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-row">
+            <label>پیشنهاد تیم</label>
+            <select name="team">
+                <option value="" {% if not filters.team %}selected{% endif %}>همه</option>
+                <option value="1" {% if filters.team == "1" %}selected{% endif %}>فقط پیشنهادهای تیم</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <label>جست‌وجو در عنوان/اسلاگ</label>
+            <input type="text" name="q" value="{{ filters.q }}" placeholder="مثلاً GPT یا slug">
+        </div>
+
+        <div class="toolbar" style="grid-column: 1 / -1;">
+            <button type="submit" class="btn">اعمال فیلتر</button>
+            <a class="btn btn-secondary" href="{% url 'staffpanel:article-list' %}">بازنشانی</a>
+            <a class="btn" href="{% url 'staffpanel:article-new' %}">مقاله جدید</a>
+            {% if request.user|has_group:"editorial_admins" %}
+                <a class="btn btn-secondary" href="{% url 'staffpanel:category-list' %}">مدیریت دسته‌بندی‌ها</a>
+            {% endif %}
+            <a class="btn btn-secondary" href="{% url 'staffpanel:tag-list' %}">مدیریت تگ‌ها</a>
+            <a class="btn btn-secondary" href="{% url 'staffpanel:entity-list' %}">مدیریت انتیتی‌ها</a>
+            <a class="btn btn-secondary" href="{% url 'staffpanel:source-list' %}">مدیریت منابع</a>
+        </div>
+    </form>
+
+    {% if articles %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>عنوان</th>
+                    <th>وضعیت</th>
+                    <th>نوع</th>
+                    <th>پیشنهاد تیم</th>
+                    <th>بازدید (۳۰روز)</th>
+                    <th>اشتراک (۳۰روز)</th>
+                    <th>کامنت</th>
+                    <th>امتیاز</th>
+                    <th>آخرین ویرایش</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for article in articles %}
+                <tr>
+                    <td>
+                        <strong>{{ article.title }}</strong><br>
+                        <span class="muted">/{{ article.slug }}/</span>
+                    </td>
+                    <td>
+                        {% if article.status == "published" %}
+                            <span class="badge badge-published">منتشر شده</span>
+                        {% else %}
+                            <span class="badge badge-draft">پیش‌نویس</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if article.content_type == "short_news" %}
+                            خبر کوتاه
+                        {% elif article.content_type == "post" %}
+                            پست
+                        {% else %}
+                            مقاله
+                        {% endif %}
+                    </td>
+                    <td>{% if article.is_team_pick %}بله{% else %}خیر{% endif %}</td>
+                    <td>{{ article.stats.views_30d|default:0 }}</td>
+                    <td>{{ article.stats.shares_30d|default:0 }}</td>
+                    <td>{{ article.stats.comments|default:0 }}</td>
+                    <td>
+                        {% if article.stats.rating_avg %}
+                            {{ article.stats.rating_avg|floatformat:1 }} ({{ article.stats.rating_count|default:0 }})
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>{{ article.updated_at }}</td>
+                    <td class="actions">
+                        <a href="{% url 'staffpanel:article-edit' article.pk %}">ویرایش</a>
+                        <a href="{% url 'staffpanel:article-preview' article.pk %}">پیش‌نمایش</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <p class="muted">با فیلترهای فعلی مقاله‌ای پیدا نشد.</p>
+    {% endif %}
+
+    {% if page_obj %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a class="btn btn-secondary" href="?page={{ page_obj.previous_page_number }}&status={{ filters.status }}&type={{ filters.type }}&team={{ filters.team }}&q={{ filters.q }}">صفحه قبل</a>
+        {% endif %}
+        <span>صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a class="btn btn-secondary" href="?page={{ page_obj.next_page_number }}&status={{ filters.status }}&type={{ filters.type }}&team={{ filters.team }}&q={{ filters.q }}">صفحه بعد</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

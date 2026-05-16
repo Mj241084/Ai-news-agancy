@@ -1,0 +1,152 @@
+
+{% extends 'base.html' %}
+
+{% block title %}ورود / ثبت‌نام{% endblock %}
+
+{% block extra_css %}
+    .auth-container {
+        min-height: calc(100vh - var(--header-h) - 300px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--sp-6) var(--sp-4);
+    }
+
+    .auth-box {
+        background-color: var(--c-bg);
+        border: 1px solid var(--c-border);
+        border-radius: var(--r-3);
+        padding: var(--sp-7);
+        width: 100%;
+        max-width: 420px;
+        box-shadow: var(--sh-2);
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: var(--sp-6);
+    }
+
+    .auth-icon {
+        width: 64px;
+        height: 64px;
+        background-color: var(--c-surface);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto var(--sp-4);
+        color: var(--c-accent);
+        font-size: var(--fs-3);
+    }
+
+    .auth-title {
+        font-size: var(--fs-3);
+        margin-bottom: var(--sp-2);
+    }
+
+    .auth-subtitle {
+        color: var(--c-muted);
+        font-size: var(--fs-6);
+    }
+
+    .form-group {
+        margin-bottom: var(--sp-4);
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: var(--sp-2);
+        font-weight: var(--fw-medium);
+        font-size: var(--fs-6);
+    }
+
+    .form-input {
+        width: 100%;
+        padding: var(--sp-3);
+        border: 1px solid var(--c-border);
+        border-radius: var(--r-2);
+        font-size: var(--fs-5);
+        transition: border-color 0.2s ease;
+        text-align: left;
+        direction: ltr;
+    }
+
+    .form-input:focus {
+        border-color: var(--c-accent);
+        outline: none;
+    }
+
+    .form-hint {
+        font-size: var(--fs-7);
+        color: var(--c-muted);
+        margin-top: var(--sp-2);
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: var(--sp-3);
+        background-color: var(--c-accent);
+        color: var(--c-bg);
+        border: none;
+        border-radius: var(--r-2);
+        font-size: var(--fs-5);
+        font-weight: var(--fw-semibold);
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .btn-submit:hover {
+        background-color: var(--c-accent-hover);
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: var(--sp-5);
+        padding-top: var(--sp-4);
+        border-top: 1px solid var(--c-border);
+        font-size: var(--fs-6);
+        color: var(--c-muted);
+    }
+{% include 'partials/_responive.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box">
+        <div class="auth-header">
+            <div class="auth-icon">
+                <svg class="icon icon-envelope" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#envelope" xlink:href="{{ icon_sprite }}#envelope"></use></svg>
+            </div>
+            <h1 class="auth-title">ورود به حساب کاربری</h1>
+            <p class="auth-subtitle">کد تأیید به ایمیل شما ارسال خواهد شد</p>
+        </div>
+
+        <form method="POST" action="{% url 'accounts:register' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label" for="email">آدرس ایمیل</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-input" 
+                    placeholder="your@email.com" 
+                    required 
+                    autofocus
+                >
+                <p class="form-hint">لطفاً ایمیل معتبر خود را وارد کنید</p>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <svg class="icon icon-paper_plane" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#paper_plane" xlink:href="{{ icon_sprite }}#paper_plane"></use></svg>
+                ارسال کد تأیید
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>با ورود به سایت، <a href="{% url 'core:terms' %}">قوانین و مقررات</a> را می‌پذیرید</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

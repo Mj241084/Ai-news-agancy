@@ -1,0 +1,71 @@
+{% extends "staffpanel/base.html" %}
+
+{% block title %}پیش‌نویس‌ها{% endblock %}
+
+{% block content %}
+<div class="grid grid-2">
+    <div class="card">
+        <h1>پیش‌نویس‌ها</h1>
+        {% if drafts %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>عنوان</th>
+                            <th>آخرین ویرایش</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for draft in drafts %}
+                        <tr>
+                            <td>
+                                <strong>{{ draft.title }}</strong><br>
+                                <span class="muted">{{ draft.slug }}</span>
+                            </td>
+                            <td>{{ draft.updated_at }}</td>
+                            <td class="actions">
+                                <a href="?preview={{ draft.pk }}">پیش‌نمایش سریع</a>
+                                <a href="{% url 'staffpanel:article-edit' draft.pk %}">ویرایش</a>
+                                <a href="{% url 'staffpanel:article-preview' draft.pk %}">پیش‌نمایش کامل</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="muted">هیچ پیش‌نویسی وجود ندارد.</p>
+        {% endif %}
+
+        {% if page_obj %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a class="btn btn-secondary" href="?page={{ page_obj.previous_page_number }}">صفحه قبل</a>
+            {% endif %}
+            <span>صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a class="btn btn-secondary" href="?page={{ page_obj.next_page_number }}">صفحه بعد</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        {% if preview_article %}
+            <h2>پیش‌نمایش سریع</h2>
+            <h3 style="margin-bottom: 5px;">{{ preview_article.title }}</h3>
+            <p class="muted">{{ preview_article.updated_at }}</p>
+            <div class="toolbar">
+                <a class="btn btn-secondary" href="{% url 'staffpanel:article-edit' preview_article.pk %}">ویرایش</a>
+                <a class="btn btn-secondary" href="{% url 'staffpanel:article-preview' preview_article.pk %}">پیش‌نمایش کامل</a>
+            </div>
+            <div class="preview-body">
+                {{ preview_rendered|safe }}
+            </div>
+        {% else %}
+            <p class="muted">برای پیش‌نمایش، یک پیش‌نویس انتخاب کنید.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

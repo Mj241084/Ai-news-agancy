@@ -1,0 +1,71 @@
+{% extends "staffpanel/base.html" %}
+{% load staff_roles %}
+
+{% block title %}پیش‌نمایش قانون نگارش{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>پیش‌نمایش قانون نگارش</h1>
+    <p class="muted meta-line">
+        <strong>{{ ruleset.title }}</strong><br>
+        کلید: {{ ruleset.key }}
+        {% if ruleset.scenario %}| سناریو: {{ ruleset.scenario }}{% endif %}
+        | اولویت: {{ ruleset.priority }}
+        | وضعیت: {% if ruleset.status == "published" %}منتشر شده{% elif ruleset.status == "draft" %}پیش‌نویس{% else %}آرشیو{% endif %}
+        | {% if ruleset.is_active %}فعال{% else %}غیرفعال{% endif %}
+    </p>
+
+    <div class="toolbar">
+        {% if request.user|has_group:"editorial_admins" %}
+            <a class="btn btn-secondary" href="{% url 'staffpanel:ruleset-edit' ruleset.pk %}">ویرایش</a>
+        {% endif %}
+        <a class="btn btn-secondary" href="{% url 'staffpanel:ruleset-list' %}">بازگشت</a>
+    </div>
+
+    <div class="preview-body">
+        {{ rendered_body|safe }}
+    </div>
+</div>
+
+<div class="card">
+    <h2>پرامپت‌های مرتبط</h2>
+
+    {% if default_prompt %}
+        <div class="rel-card">
+            <div class="rel-title">{{ default_prompt.title }} <span class="badge badge-published">پیش‌فرض</span></div>
+            {% if default_prompt.description %}
+                <p class="excerpt">{{ default_prompt.description|truncatechars:180 }}</p>
+            {% endif %}
+            <div class="rel-actions">
+                <a class="btn btn-secondary" href="{% url 'staffpanel:prompt-preview' default_prompt.pk %}">مشاهده</a>
+                <button class="btn" type="button" data-copy data-copy-target="#prompt-body-default-{{ default_prompt.pk }}">کپی متن پرامپت</button>
+            </div>
+            <details class="copy-box">
+                <summary>نمایش متن پرامپت</summary>
+                <pre id="prompt-body-default-{{ default_prompt.pk }}" class="mono-box">{{ default_prompt.body }}</pre>
+            </details>
+        </div>
+    {% endif %}
+
+    {% for prompt in related_prompts %}
+        <div class="rel-card">
+            <div class="rel-title">{{ prompt.title }}</div>
+            {% if prompt.description %}
+                <p class="excerpt">{{ prompt.description|truncatechars:180 }}</p>
+            {% endif %}
+            <div class="rel-actions">
+                <a class="btn btn-secondary" href="{% url 'staffpanel:prompt-preview' prompt.pk %}">مشاهده</a>
+                <button class="btn" type="button" data-copy data-copy-target="#prompt-body-{{ prompt.pk }}">کپی متن پرامپت</button>
+            </div>
+            <details class="copy-box">
+                <summary>نمایش متن پرامپت</summary>
+                <pre id="prompt-body-{{ prompt.pk }}" class="mono-box">{{ prompt.body }}</pre>
+            </details>
+        </div>
+    {% endfor %}
+
+    {% if not default_prompt and not related_prompts %}
+        <p class="muted">پرامپت مرتبطی برای این قانون ثبت نشده است.</p>
+    {% endif %}
+</div>
+{% endblock %}

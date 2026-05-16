@@ -1,0 +1,50 @@
+{% extends "staffpanel/base.html" %}
+
+{% block title %}{% if object %}ویرایش پرامپت{% else %}پرامپت جدید{% endif %}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>{% if object %}ویرایش پرامپت{% else %}ایجاد پرامپت جدید{% endif %}</h1>
+
+    {% if object %}
+    <p class="muted meta-line">
+        وضعیت:
+        {% if object.status == "published" %}منتشر شده{% elif object.status == "draft" %}پیش‌نویس{% else %}آرشیو{% endif %}
+        {% if object.is_active %}| فعال{% else %}| غیرفعال{% endif %}
+        | آخرین ویرایش: {{ object.updated_at }}
+    </p>
+    <div class="toolbar">
+        <a class="btn btn-secondary" href="{% url 'staffpanel:prompt-preview' object.pk %}">باز کردن پیش‌نمایش</a>
+    </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
+
+        {% if form.non_field_errors %}
+            <ul class="errorlist">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% for field in form %}
+            <div class="form-row">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}<small class="helptext">{{ field.help_text }}</small>{% endif %}
+                {{ field.errors }}
+            </div>
+        {% endfor %}
+
+        <div class="toolbar">
+            <button class="btn" type="submit" name="_save">ذخیره</button>
+            <button class="btn btn-secondary" type="submit" name="_continue">ذخیره و ادامه</button>
+            <button class="btn btn-secondary" type="submit" name="_preview">ذخیره و پیش‌نمایش</button>
+            <a class="btn btn-secondary" href="{% url 'staffpanel:prompt-list' %}">بازگشت به لیست</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

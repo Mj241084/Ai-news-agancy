@@ -1,0 +1,73 @@
+{% extends "staffpanel/base.html" %}
+
+{% block title %}منابع{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>منابع</h1>
+
+    <form method="get" class="grid grid-2" style="margin-bottom: 14px;">
+        <div class="form-row">
+            <label>وضعیت</label>
+            <select name="active">
+                <option value="" {% if not filters.active %}selected{% endif %}>همه</option>
+                <option value="1" {% if filters.active == "1" %}selected{% endif %}>فقط فعال</option>
+                <option value="0" {% if filters.active == "0" %}selected{% endif %}>فقط غیرفعال</option>
+            </select>
+        </div>
+        <div class="form-row">
+            <label>جستجو (نام/URL)</label>
+            <input type="text" name="q" value="{{ filters.q }}" placeholder="مثلاً openai یا arxiv">
+        </div>
+
+        <div class="toolbar" style="grid-column: 1 / -1;">
+            <button type="submit" class="btn">اعمال فیلتر</button>
+            <a class="btn btn-secondary" href="{% url 'staffpanel:source-list' %}">بازنشانی</a>
+            <a class="btn" href="{% url 'staffpanel:source-new' %}">منبع جدید</a>
+        </div>
+    </form>
+
+    {% if sources %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>نام</th>
+                        <th>نوع</th>
+                        <th>URL</th>
+                        <th>وضعیت</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for source in sources %}
+                    <tr>
+                        <td><strong>{{ source.name }}</strong></td>
+                        <td>{{ source.get_type_display }}</td>
+                        <td><a href="{{ source.url }}" target="_blank" rel="noopener">{{ source.url }}</a></td>
+                        <td>{% if source.is_active %}<span class="badge badge-published">فعال</span>{% else %}<span class="badge badge-draft">غیرفعال</span>{% endif %}</td>
+                        <td class="actions">
+                            <a href="{% url 'staffpanel:source-edit' source.pk %}">ویرایش</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a class="btn btn-secondary" href="?page={{ page_obj.previous_page_number }}&active={{ filters.active }}&q={{ filters.q }}">صفحه قبل</a>
+            {% endif %}
+            <span>صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a class="btn btn-secondary" href="?page={{ page_obj.next_page_number }}&active={{ filters.active }}&q={{ filters.q }}">صفحه بعد</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    {% else %}
+        <p class="muted">منبعی پیدا نشد.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,447 @@
+{% extends "staffpanel/base.html" %}
+{% load staff_roles %}
+
+{% block title %}{% if object %}ویرایش مقاله{% else %}مقاله جدید{% endif %}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>{% if object %}ویرایش مقاله{% else %}ایجاد مقاله جدید{% endif %}</h1>
+
+    {% if object %}
+    <p class="muted meta-line">
+        وضعیت فعلی:
+        {% if object.status == "published" %}
+            <span class="badge badge-published">منتشر شده</span>
+        {% else %}
+            <span class="badge badge-draft">پیش‌نویس</span>
+        {% endif %}
+        {% if object.published_at %}
+            | زمان انتشار: {{ object.published_at }}
+        {% endif %}
+    </p>
+    <div class="toolbar">
+        <a class="btn btn-secondary" href="{% url 'staffpanel:article-preview' object.pk %}">باز کردن پیش‌نمایش</a>
+        {% if object.status == "published" %}
+            <a class="btn btn-secondary" href="{{ object.get_absolute_url }}" target="_blank" rel="noopener">باز کردن لینک عمومی</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
+
+        {% if form.non_field_errors %}
+            <ul class="errorlist">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="grid grid-2">
+            <div>
+                <div class="form-row">
+                    <label for="{{ form.content_type.id_for_label }}">{{ form.content_type.label }}</label>
+                    {{ form.content_type }}
+                    {{ form.content_type.errors }}
+                </div>
+                <div class="form-row">
+                    <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+                    {{ form.title }}
+                    {{ form.title.errors }}
+                </div>
+                <div class="form-row">
+                    <label for="{{ form.slug.id_for_label }}">{{ form.slug.label }}</label>
+                    {{ form.slug }}
+                    {% if form.slug.help_text %}<small class="helptext">{{ form.slug.help_text }}</small>{% endif %}
+                    {{ form.slug.errors }}
+                </div>
+                <div class="form-row">
+                    <label for="{{ form.excerpt.id_for_label }}">{{ form.excerpt.label }}</label>
+                    {{ form.excerpt }}
+                    {{ form.excerpt.errors }}
+                </div>
+            </div>
+
+            <div>
+                <div class="form-row">
+                    <label for="{{ form.hero_image.id_for_label }}">{{ form.hero_image.label }}</label>
+                    {{ form.hero_image }}
+                    {{ form.hero_image.errors }}
+                </div>
+                <div class="form-row">
+                    <label for="{{ form.thumbnail.id_for_label }}">{{ form.thumbnail.label }}</label>
+                    {{ form.thumbnail }}
+                    {{ form.thumbnail.errors }}
+                </div>
+                <div class="form-row">
+                    <label for="{{ form.video_url.id_for_label }}">{{ form.video_url.label }}</label>
+                    {{ form.video_url }}
+                    {{ form.video_url.errors }}
+                </div>
+                <div class="form-row">
+                    <label for="{{ form.video_thumbnail.id_for_label }}">{{ form.video_thumbnail.label }}</label>
+                    {{ form.video_thumbnail }}
+                    {{ form.video_thumbnail.errors }}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label for="{{ form.body.id_for_label }}">{{ form.body.label }}</label>
+            {{ form.body }}
+            {% if form.body.help_text %}<small class="helptext">{{ form.body.help_text }}</small>{% endif %}
+            {{ form.body.errors }}
+        </div>
+
+        <div class="grid grid-2">
+            <div class="form-row">
+                <label>{{ form.goals.label }}</label>
+                {{ form.goals }}
+                {% if form.goals.help_text %}<small class="helptext">{{ form.goals.help_text }}</small>{% endif %}
+                {{ form.goals.errors }}
+            </div>
+
+            <div>
+                <div class="form-row">
+                    <label>جستجو در تگ‌ها</label>
+                    <input type="text" class="js-select-filter" data-target='select[data-filter-name="tags"]' placeholder="مثلاً GPT">
+                    <small class="helptext"><a href="{% url 'staffpanel:tag-new' %}?next={{ request.get_full_path|urlencode }}">+ ساخت تگ</a></small>
+                </div>
+                <div class="form-row">
+                    <label for="{{ form.tags.id_for_label }}">{{ form.tags.label }}</label>
+                    {{ form.tags }}
+                    {{ form.tags.errors }}
+                </div>
+            </div>
+        </div>
+
+        <hr style="margin: 18px 0;">
+
+        <h3 style="margin-top: 0;">انتیتی‌ها (Role + Importance)</h3>
+
+        {% if entity_formset.non_form_errors %}
+            <ul class="errorlist">
+                {% for error in entity_formset.non_form_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="form-row">
+            <label>جستجو در گزینه‌های انتیتی</label>
+            <input type="text" class="js-select-filter" data-target='select[data-filter-name="entities"]' placeholder="مثلاً OpenAI">
+            <small class="helptext"><a href="{% url 'staffpanel:entity-new' %}?next={{ request.get_full_path|urlencode }}">+ ساخت انتیتی</a></small>
+        </div>
+
+        {{ entity_formset.management_form }}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>انتیتی</th>
+                        <th>نقش</th>
+                        <th>اهمیت</th>
+                        <th>حذف</th>
+                    </tr>
+                </thead>
+                <tbody id="entity-formset-body">
+                {% for f in entity_formset.forms %}
+                    <tr class="formset-row">
+                        <td>
+                            {{ f.id }}
+                            {{ f.entity }}
+                            {{ f.entity.errors }}
+                        </td>
+                        <td>
+                            {{ f.role }}
+                            {{ f.role.errors }}
+                        </td>
+                        <td>
+                            {{ f.importance }}
+                            {{ f.importance.errors }}
+                        </td>
+                        <td style="text-align:center;">
+                            {% if f.DELETE %}{{ f.DELETE }}{% endif %}
+                        </td>
+                    </tr>
+                    {% if f.non_field_errors %}
+                        <tr><td colspan="4">
+                            <ul class="errorlist">
+                                {% for error in f.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+                            </ul>
+                        </td></tr>
+                    {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="toolbar">
+            <button class="btn btn-secondary" type="button" id="add-entity-row">+ افزودن انتیتی</button>
+            <small class="muted" style="align-self:center;">(اگر Main انتخاب نشود، سیستم یکی را خودکار به عنوان Main می‌گذارد)</small>
+        </div>
+
+        <template id="entity-empty-form-template">
+            <tr class="formset-row">
+                <td>{{ entity_formset.empty_form.id }}{{ entity_formset.empty_form.entity }}</td>
+                <td>{{ entity_formset.empty_form.role }}</td>
+                <td>{{ entity_formset.empty_form.importance }}</td>
+                <td style="text-align:center;">{{ entity_formset.empty_form.DELETE }}</td>
+            </tr>
+        </template>
+
+        <hr style="margin: 18px 0;">
+
+<h3 style="margin-top: 0;">دسته‌بندی‌ها (Primary + Weight)</h3>
+
+        {% if category_formset.non_form_errors %}
+            <ul class="errorlist">
+                {% for error in category_formset.non_form_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="form-row">
+            <label>جستجو در گزینه‌های دسته‌بندی</label>
+            <input type="text" class="js-select-filter" data-target='select[data-filter-name="categories"]' placeholder="مثلاً هوش مصنوعی">
+            <small class="helptext">
+                {% if request.user|has_group:"editorial_admins" %}
+                    <a href="{% url 'staffpanel:category-new' %}?next={{ request.get_full_path|urlencode }}">+ ساخت دسته‌بندی</a>
+                {% else %}
+                    <span class="muted">(فقط انتخاب؛ ساخت دسته‌بندی دسترسی ادمین می‌خواهد)</span>
+                {% endif %}
+            </small>
+        </div>
+
+        {{ category_formset.management_form }}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>دسته</th>
+                        <th>اصلی</th>
+                        <th>وزن</th>
+                        <th>حذف</th>
+                    </tr>
+                </thead>
+                <tbody id="category-formset-body">
+                {% for f in category_formset.forms %}
+                    <tr class="formset-row">
+                        <td>
+                            {{ f.id }}
+                            {{ f.category }}
+                            {{ f.category.errors }}
+                        </td>
+                        <td style="text-align:center;">{{ f.is_primary }}</td>
+                        <td>
+                            {{ f.weight }}
+                            {{ f.weight.errors }}
+                        </td>
+                        <td style="text-align:center;">
+                            {% if f.DELETE %}{{ f.DELETE }}{% endif %}
+                        </td>
+                    </tr>
+                    {% if f.non_field_errors %}
+                        <tr><td colspan="4">
+                            <ul class="errorlist">
+                                {% for error in f.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+                            </ul>
+                        </td></tr>
+                    {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="toolbar">
+            <button class="btn btn-secondary" type="button" id="add-category-row">+ افزودن دسته</button>
+        </div>
+
+        <template id="category-empty-form-template">
+            <tr class="formset-row">
+                <td>{{ category_formset.empty_form.id }}{{ category_formset.empty_form.category }}</td>
+                <td style="text-align:center;">{{ category_formset.empty_form.is_primary }}</td>
+                <td>{{ category_formset.empty_form.weight }}</td>
+                <td style="text-align:center;">{{ category_formset.empty_form.DELETE }}</td>
+            </tr>
+        </template>
+
+        <hr style="margin: 18px 0;">
+
+        <h3 style="margin-top: 0;">منابع</h3>
+
+        {% if source_formset.non_form_errors %}
+            <ul class="errorlist">
+                {% for error in source_formset.non_form_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="form-row">
+            <label>جستجو در گزینه‌های منبع</label>
+            <input type="text" class="js-select-filter" data-target='select[data-filter-name="sources"]' placeholder="مثلاً arxiv">
+            <small class="helptext"><a href="{% url 'staffpanel:source-new' %}?next={{ request.get_full_path|urlencode }}">+ ساخت منبع</a></small>
+        </div>
+
+        {{ source_formset.management_form }}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>منبع</th>
+                        <th>لینک اصلی</th>
+                        <th>یادداشت</th>
+                        <th>اعتماد</th>
+                        <th>حذف</th>
+                    </tr>
+                </thead>
+                <tbody id="source-formset-body">
+                {% for f in source_formset.forms %}
+                    <tr class="formset-row">
+                        <td>
+                            {{ f.id }}
+                            {{ f.source }}
+                            {{ f.source.errors }}
+                        </td>
+                        <td>
+                            {{ f.original_url }}
+                            {{ f.original_url.errors }}
+                        </td>
+                        <td>{{ f.note }}</td>
+                        <td>{{ f.confidence }}</td>
+                        <td style="text-align:center;">
+                            {% if f.DELETE %}{{ f.DELETE }}{% endif %}
+                        </td>
+                    </tr>
+                    {% if f.non_field_errors %}
+                        <tr><td colspan="5">
+                            <ul class="errorlist">
+                                {% for error in f.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+                            </ul>
+                        </td></tr>
+                    {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="toolbar">
+            <button class="btn btn-secondary" type="button" id="add-source-row">+ افزودن منبع</button>
+        </div>
+
+        <template id="source-empty-form-template">
+            <tr class="formset-row">
+                <td>{{ source_formset.empty_form.id }}{{ source_formset.empty_form.source }}</td>
+                <td>{{ source_formset.empty_form.original_url }}</td>
+                <td>{{ source_formset.empty_form.note }}</td>
+                <td>{{ source_formset.empty_form.confidence }}</td>
+                <td style="text-align:center;">{{ source_formset.empty_form.DELETE }}</td>
+            </tr>
+        </template>
+
+        <hr style="margin: 18px 0;">
+
+        <div class="grid grid-2">
+            <div class="form-row">
+                <label for="{{ form.seo_title.id_for_label }}">{{ form.seo_title.label }}</label>
+                {{ form.seo_title }}
+                {{ form.seo_title.errors }}
+            </div>
+            <div class="form-row">
+                <label for="{{ form.seo_description.id_for_label }}">{{ form.seo_description.label }}</label>
+                {{ form.seo_description }}
+                {{ form.seo_description.errors }}
+            </div>
+            <div class="form-row">
+                <label for="{{ form.canonical_path.id_for_label }}">{{ form.canonical_path.label }}</label>
+                {{ form.canonical_path }}
+                {{ form.canonical_path.errors }}
+            </div>
+            <div class="form-row">
+                <label for="{{ form.meta_robots.id_for_label }}">{{ form.meta_robots.label }}</label>
+                {{ form.meta_robots }}
+                {{ form.meta_robots.errors }}
+            </div>
+        </div>
+
+        <div class="grid grid-2">
+            <div class="form-row">
+                <label for="{{ form.is_team_pick.id_for_label }}">{{ form.is_team_pick.label }}</label>
+                {{ form.is_team_pick }}
+                {{ form.is_team_pick.errors }}
+            </div>
+            <div class="form-row">
+                <label for="{{ form.status.id_for_label }}">{{ form.status.label }}</label>
+                {{ form.status }}
+                {{ form.status.errors }}
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <button class="btn" type="submit" name="_save">ذخیره</button>
+            <button class="btn btn-secondary" type="submit" name="_continue">ذخیره و ادامه</button>
+            <button class="btn btn-secondary" type="submit" name="_preview">ذخیره و پیش‌نمایش</button>
+            <a class="btn btn-secondary" href="{% url 'staffpanel:article-list' %}">بازگشت به لیست</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block script_extra %}
+<script>
+(function () {
+    function filterSelectOptions(selectEl, query) {
+        if (!selectEl) return;
+        var q = (query || "").trim().toLowerCase();
+        var opts = selectEl.options || [];
+        for (var i = 0; i < opts.length; i++) {
+            var opt = opts[i];
+            if (!q) { opt.hidden = false; continue; }
+            var txt = (opt.text || "").toLowerCase();
+            opt.hidden = txt.indexOf(q) === -1;
+        }
+    }
+
+    document.querySelectorAll(".js-select-filter").forEach(function (input) {
+        var selector = input.getAttribute("data-target");
+        if (!selector) return;
+        input.addEventListener("input", function () {
+            document.querySelectorAll(selector).forEach(function (sel) {
+                filterSelectOptions(sel, input.value);
+            });
+        });
+    });
+
+    function addFormRow(prefix, templateId, tbodyId) {
+        var totalEl = document.getElementById("id_" + prefix + "-TOTAL_FORMS");
+        var tbody = document.getElementById(tbodyId);
+        var tpl = document.getElementById(templateId);
+        if (!totalEl || !tbody || !tpl) return;
+        var idx = parseInt(totalEl.value || "0", 10);
+        var html = tpl.innerHTML.replaceAll("__prefix__", String(idx));
+        tbody.insertAdjacentHTML("beforeend", html);
+        totalEl.value = String(idx + 1);
+    }
+
+    var addCat = document.getElementById("add-category-row");
+    if (addCat) {
+        addCat.addEventListener("click", function () {
+            addFormRow("{{ category_formset.prefix }}", "category-empty-form-template", "category-formset-body");
+        });
+    }
+    var addEntity = document.getElementById("add-entity-row");
+    if (addEntity) {
+        addEntity.addEventListener("click", function () {
+            addFormRow("{{ entity_formset.prefix }}", "entity-empty-form-template", "entity-formset-body");
+        });
+    }
+    var addSrc = document.getElementById("add-source-row");
+    if (addSrc) {
+        addSrc.addEventListener("click", function () {
+            addFormRow("{{ source_formset.prefix }}", "source-empty-form-template", "source-formset-body");
+        });
+    }
+})();
+</script>
+{% endblock %}

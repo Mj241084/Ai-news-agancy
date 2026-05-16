@@ -1,0 +1,37 @@
+{% extends "staffpanel/base.html" %}
+
+{% block title %}{% if choice %}ویرایش گزینه{% else %}گزینه جدید{% endif %}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>{% if choice %}ویرایش گزینه{% else %}ایجاد گزینه{% endif %}</h1>
+    <p class="muted">نظرسنجی: {{ poll.title|default:"(بدون عنوان)" }}</p>
+    <p class="muted">سؤال: {{ question.text }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <ul class="errorlist">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% for field in form %}
+            <div class="form-row">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}<small class="helptext">{{ field.help_text }}</small>{% endif %}
+                {{ field.errors }}
+            </div>
+        {% endfor %}
+
+        <div class="toolbar">
+            <button class="btn" type="submit">ذخیره</button>
+            <a class="btn btn-secondary" href="{% url 'staffpanel:question-edit' question.pk %}">بازگشت به سؤال</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

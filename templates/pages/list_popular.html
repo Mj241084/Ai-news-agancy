@@ -1,0 +1,49 @@
+
+{% extends 'base.html' %}
+
+{% block title %}محبوب‌ترین‌ها{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="page-title">محبوب‌ترین مطالب</h1>
+        <p class="page-description">پربازدیدترین اخبار و مقالات سایت</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="grid-2">
+        <div class="main-column">
+            {% if items %}
+                <div class="articles-list">
+                    {% for item in items %}
+                        {% include 'partials/_article_card.html' with item=item %}
+                    {% endfor %}
+                </div>
+                
+                {% include 'partials/_pagination.html' %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <svg class="icon icon-bar_chart" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#bar_chart" xlink:href="{{ icon_sprite }}#bar_chart"></use></svg>
+                    </div>
+                    <h3 class="empty-state-title">مطلبی یافت نشد</h3>
+                    <p class="empty-state-text">هنوز آماری برای نمایش وجود ندارد.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <svg class="icon icon-info" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#info" xlink:href="{{ icon_sprite }}#info"></use></svg>
+                    درباره این بخش
+                </h3>
+                <p style="font-size: var(--fs-6); color: var(--c-muted); line-height: 1.8;">
+                    این بخش شامل مطالبی است که بیشترین بازدید را در روزهای اخیر داشته‌اند. رتبه‌بندی بر اساس تعداد بازدید، لایک و تعاملات کاربران محاسبه می‌شود.
+                </p>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}

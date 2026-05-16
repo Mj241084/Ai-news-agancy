@@ -1,0 +1,131 @@
+{% extends "staffpanel/base.html" %}
+
+{% block title %}پیش‌نمایش - {{ article.title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="toolbar">
+        <a class="btn btn-secondary" href="{% url 'staffpanel:article-edit' article.pk %}">بازگشت به ویرایش</a>
+        <a class="btn btn-secondary" href="{% url 'staffpanel:draft-list' %}?preview={{ article.pk }}">باز کردن در پیش‌نویس‌ها</a>
+        {% if public_url %}
+            <a class="btn" href="{{ public_url }}" target="_blank" rel="noopener">لینک عمومی</a>
+        {% endif %}
+    </div>
+
+    <h1>{{ article.title }}</h1>
+    <p class="muted meta-line">
+        وضعیت:
+        {% if article.status == "published" %}
+            <span class="badge badge-published">منتشر شده</span>
+        {% else %}
+            <span class="badge badge-draft">پیش‌نویس</span>
+        {% endif %}
+        | نوع:
+        {% if article.content_type == "short_news" %}
+            خبر کوتاه
+        {% elif article.content_type == "post" %}
+            پست
+        {% else %}
+            مقاله
+        {% endif %}
+        | پیشنهاد تیم: {% if article.is_team_pick %}بله{% else %}خیر{% endif %}
+        {% if article.published_at %}| زمان انتشار: {{ article.published_at }}{% endif %}
+    </p>
+
+    {% if article.hero_image %}
+        <p>
+            <img src="{{ article.hero_image }}" alt="{{ article.title }}" style="max-width: 100%; border-radius: 8px;">
+        </p>
+    {% endif %}
+
+    {% if article.thumbnail %}
+        <p>
+            <strong>لینک تصویر بندانگشتی:</strong>
+            <a href="{{ article.thumbnail }}" target="_blank" rel="noopener">{{ article.thumbnail }}</a>
+        </p>
+    {% endif %}
+
+    <div class="grid grid-2" style="margin-top: 12px;">
+        <div class="card">
+            <h3>دسته‌بندی‌ها</h3>
+            {% if category_links %}
+                <ul>
+                    {% for rel in category_links %}
+                        <li>
+                            {{ rel.category.title }}
+                            {% if rel.is_primary %}<strong>(اصلی)</strong>{% endif %}
+                            <span class="muted">(وزن: {{ rel.weight|floatformat:1 }})</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="muted">دسته‌بندی انتخاب نشده است.</p>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h3>تگ‌ها</h3>
+            {% if tag_links %}
+                <ul>
+                    {% for rel in tag_links %}
+                        <li>{{ rel.tag.title }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="muted">تگی انتخاب نشده است.</p>
+            {% endif %}
+
+            <h3 style="margin-top: 12px;">انتیتی‌ها (Role + Importance)</h3>
+            {% if entity_links %}
+                <ul>
+                    {% for rel in entity_links %}
+                        <li>
+                            <strong>{{ rel.entity.name }}</strong>
+                            <span class="muted">
+                                — نقش:
+                                {% if rel.role == 'main' %}اصلی{% elif rel.role == 'mentioned' %}اشاره‌شده{% elif rel.role == 'author' %}نویسنده{% elif rel.role == 'target' %}هدف/موضوع{% else %}{{ rel.role }}{% endif %}
+                                — اهمیت: {{ rel.importance|floatformat:1 }}
+                            </span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="muted">انتیتی انتخاب نشده است.</p>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h3>اهداف محتوا</h3>
+            {% if goals %}
+                <ul>
+                    {% for g in goals %}<li>{{ g }}</li>{% endfor %}
+                </ul>
+            {% else %}
+                <p class="muted">هدف خاصی ثبت نشده است.</p>
+            {% endif %}
+
+            <h3 style="margin-top: 12px;">منابع</h3>
+            {% if source_links %}
+                <ul>
+                    {% for rel in source_links %}
+                        <li>
+                            <strong>{{ rel.source.name }}</strong>
+                            <span class="muted">({{ rel.source.get_type_display }})</span>
+                            — <a href="{{ rel.original_url }}" target="_blank" rel="noopener noreferrer nofollow">{{ rel.original_url }}</a>
+                            {% if rel.note %}<div class="muted">{{ rel.note }}</div>{% endif %}
+                            {% if rel.confidence != None %}<div class="muted">اعتماد: {{ rel.confidence|floatformat:2 }}</div>{% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="muted">منبعی ثبت نشده است.</p>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <div class="preview-body">
+        {{ rendered_body|safe }}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+
+{% if pagination.pages > 1 %}
+<nav class="pagination" aria-label="صفحه‌بندی">
+    {% if pagination.has_previous %}
+        <a href="{{ pagination.prev_url }}" class="page-link" aria-label="صفحه قبلی">
+            <svg class="icon icon-forward" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#forward" xlink:href="{{ icon_sprite }}#forward"></use></svg>
+        </a>
+    {% else %}
+        <span class="page-link disabled" aria-label="صفحه قبلی">
+            <svg class="icon icon-forward" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#forward" xlink:href="{{ icon_sprite }}#forward"></use></svg>
+        </span>
+    {% endif %}
+
+    <span class="page-link active">{{ pagination.page }}</span>
+    
+    {% if pagination.has_next %}
+        <a href="{{ pagination.next_url }}" class="page-link" aria-label="صفحه بعدی">
+            <svg class="icon icon-back" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#back" xlink:href="{{ icon_sprite }}#back"></use></svg>
+        </a>
+    {% else %}
+        <span class="page-link disabled" aria-label="صفحه بعدی">
+            <svg class="icon icon-back" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#back" xlink:href="{{ icon_sprite }}#back"></use></svg>
+        </span>
+    {% endif %}
+</nav>
+{% endif %}

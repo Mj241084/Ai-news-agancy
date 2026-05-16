@@ -1,0 +1,268 @@
+
+{% extends 'base.html' %}
+
+{% block title %}تأیید کد{% endblock %}
+
+{% block extra_css %}
+    .auth-container {
+        min-height: calc(100vh - var(--header-h) - 300px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--sp-6) var(--sp-4);
+    }
+
+    .auth-box {
+        background-color: var(--c-bg);
+        border: 1px solid var(--c-border);
+        border-radius: var(--r-3);
+        padding: var(--sp-7);
+        width: 100%;
+        max-width: 420px;
+        box-shadow: var(--sh-2);
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: var(--sp-6);
+    }
+
+    .auth-icon {
+        width: 64px;
+        height: 64px;
+        background-color: var(--c-surface);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto var(--sp-4);
+        color: var(--c-accent);
+        font-size: var(--fs-3);
+    }
+
+    .auth-title {
+        font-size: var(--fs-3);
+        margin-bottom: var(--sp-2);
+    }
+
+    .auth-subtitle {
+        color: var(--c-muted);
+        font-size: var(--fs-6);
+    }
+
+    .code-inputs {
+        display: flex;
+        gap: var(--sp-2);
+        justify-content: center;
+        margin-bottom: var(--sp-5);
+        direction: ltr;
+    }
+
+    .code-input {
+        width: 50px;
+        height: 60px;
+        border: 2px solid var(--c-border);
+        border-radius: var(--r-2);
+        text-align: center;
+        font-size: var(--fs-2);
+        font-weight: var(--fw-bold);
+        color: var(--c-primary);
+        transition: border-color 0.2s ease;
+    }
+
+    .code-input:focus {
+        border-color: var(--c-accent);
+        outline: none;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: var(--sp-3);
+        background-color: var(--c-accent);
+        color: var(--c-bg);
+        border: none;
+        border-radius: var(--r-2);
+        font-size: var(--fs-5);
+        font-weight: var(--fw-semibold);
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        margin-bottom: var(--sp-3);
+    }
+
+    .btn-submit:hover {
+        background-color: var(--c-accent-hover);
+    }
+
+    .btn-resend {
+        width: 100%;
+        padding: var(--sp-3);
+        background-color: transparent;
+        color: var(--c-muted);
+        border: 1px solid var(--c-border);
+        border-radius: var(--r-2);
+        font-size: var(--fs-6);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-resend:hover:not(:disabled) {
+        border-color: var(--c-accent);
+        color: var(--c-accent);
+    }
+
+    .btn-resend:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .timer {
+        text-align: center;
+        font-size: var(--fs-6);
+        color: var(--c-muted);
+        margin-top: var(--sp-4);
+    }
+
+    .email-display {
+        text-align: center;
+        background-color: var(--c-surface);
+        padding: var(--sp-3);
+        border-radius: var(--r-2);
+        margin-bottom: var(--sp-4);
+        font-family: monospace;
+        direction: ltr;
+        font-size: var(--fs-6);
+    }
+
+    .back-link {
+        display: block;
+        text-align: center;
+        margin-top: var(--sp-4);
+        font-size: var(--fs-6);
+    }
+{% include 'partials/_responive.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box">
+        <div class="auth-header">
+            <div class="auth-icon">
+                <svg class="icon icon-protect" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#protect" xlink:href="{{ icon_sprite }}#protect"></use></svg>
+            </div>
+            <h1 class="auth-title">کد تأیید را وارد کنید</h1>
+            <p class="auth-subtitle">کد ۶ رقمی ارسال شده به ایمیل خود را وارد کنید</p>
+        </div>
+
+        <div class="email-display">{{ email }}</div>
+
+        <form method="POST" action="{% url 'accounts:verify_email' %}" id="verify-form">
+            {% csrf_token %}
+            <input type="hidden" name="email" value="{{ email }}">
+            
+            <div class="code-inputs">
+                <input type="text" class="code-input" maxlength="1" name="code1" required>
+                <input type="text" class="code-input" maxlength="1" name="code2" required>
+                <input type="text" class="code-input" maxlength="1" name="code3" required>
+                <input type="text" class="code-input" maxlength="1" name="code4" required>
+                <input type="text" class="code-input" maxlength="1" name="code5" required>
+                <input type="text" class="code-input" maxlength="1" name="code6" required>
+            </div>
+
+            <input type="hidden" name="code" id="full-code">
+
+            <button type="submit" class="btn-submit">
+                <svg class="icon icon-verified_account" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#verified_account" xlink:href="{{ icon_sprite }}#verified_account"></use></svg>
+                تأیید و ورود
+            </button>
+        </form>
+
+        <button class="btn-resend" id="resend-btn" onclick="resendCode()" disabled>
+            ارسال مجدد کد
+        </button>
+
+        <div class="timer" id="timer">ارسال مجدد پس از ۶۰ ثانیه</div>
+
+        <a href="{% url 'accounts:login' %}" class="back-link">
+            <svg class="icon icon-forward" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#forward" xlink:href="{{ icon_sprite }}#forward"></use></svg>
+            تغییر ایمیل
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const inputs = document.querySelectorAll('.code-input');
+    const form = document.getElementById('verify-form');
+    const fullCodeInput = document.getElementById('full-code');
+    const resendBtn = document.getElementById('resend-btn');
+    const timerDisplay = document.getElementById('timer');
+    let timeLeft = 60;
+
+    // Auto-focus and auto-advance
+    inputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+            if (e.target.value.length === 1) {
+                if (index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            }
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                inputs[index - 1].focus();
+            }
+        });
+
+        // Only allow numbers
+        input.addEventListener('keypress', (e) => {
+            if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+            }
+        });
+    });
+
+    // Combine codes before submit
+    form.addEventListener('submit', (e) => {
+        let code = '';
+        inputs.forEach(input => {
+            code += input.value;
+        });
+        fullCodeInput.value = code;
+    });
+
+    // Timer for resend
+    function startTimer() {
+        const timer = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = `ارسال مجدد پس از ${timeLeft} ثانیه`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                resendBtn.disabled = false;
+                timerDisplay.textContent = 'می‌توانید کد جدید درخواست کنید';
+            }
+        }, 1000);
+    }
+
+    startTimer();
+
+    function resendCode() {
+        // Submit to resend endpoint
+        fetch('{% url "accounts:resend_code" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ email: '{{ email }}' })
+        }).then(() => {
+            timeLeft = 60;
+            resendBtn.disabled = true;
+            startTimer();
+            alert('کد جدید ارسال شد');
+        });
+    }
+</script>
+{% endblock %}

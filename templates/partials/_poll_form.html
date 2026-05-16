@@ -1,0 +1,32 @@
+<form id="active-poll-form" class="poll-form" data-poll-id="{{ poll.id }}">
+    <input type="hidden" name="poll_id" value="{{ poll.id }}">
+
+    {% if poll.title %}
+        <h3 class="poll-title">{{ poll.title }}</h3>
+    {% else %}
+        <h3 class="poll-title">نظرسنجی</h3>
+    {% endif %}
+
+    {% for question in poll.questions.all %}
+        <div class="poll-question" data-question-id="{{ question.id }}" data-kind="{{ question.kind }}">
+            <p class="poll-question-text">{{ forloop.counter }}. {{ question.text }}</p>
+            <div class="poll-choices">
+                {% for choice in question.choices.all %}
+                    <label class="poll-choice">
+                        {% if question.kind == "single" %}
+                            <input type="radio" name="q_{{ question.id }}" value="{{ choice.id }}">
+                        {% else %}
+                            <input type="checkbox" name="q_{{ question.id }}[]" value="{{ choice.id }}">
+                        {% endif %}
+                        <span>{{ choice.text }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+
+    <div class="poll-actions">
+        <button type="submit" class="btn btn-primary" id="poll-submit-btn">ثبت</button>
+    </div>
+    <p class="poll-feedback" id="poll-feedback" style="display:none"></p>
+</form>

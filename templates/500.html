@@ -1,0 +1,79 @@
+
+{% extends 'base.html' %}
+
+{% block title %}خطای سرور{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        min-height: calc(100vh - var(--header-h) - 300px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: var(--sp-8) var(--sp-4);
+    }
+
+    .error-code {
+        font-size: 8rem;
+        font-weight: var(--fw-bold);
+        color: #dc2626;
+        line-height: 1;
+        margin-bottom: var(--sp-4);
+        opacity: 0.8;
+    }
+
+    .error-title {
+        font-size: var(--fs-2);
+        margin-bottom: var(--sp-3);
+    }
+
+    .error-text {
+        color: var(--c-muted);
+        margin-bottom: var(--sp-6);
+        max-width: 500px;
+    }
+
+    .btn-home {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-2);
+        padding: var(--sp-3) var(--sp-5);
+        background-color: var(--c-accent);
+        color: var(--c-bg);
+        border-radius: var(--r-2);
+        font-weight: var(--fw-medium);
+        transition: background-color 0.2s ease;
+    }
+
+    .btn-home:hover {
+        background-color: var(--c-accent-hover);
+        color: var(--c-bg);
+    }
+
+    .error-icon {
+        font-size: 4rem;
+        color: #dc2626;
+        margin-bottom: var(--sp-4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-icon">
+        <svg class="icon icon-error" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#error" xlink:href="{{ icon_sprite }}#error"></use></svg>
+    </div>
+    <div class="error-code">500</div>
+    <h1 class="error-title">خطای داخلی سرور</h1>
+    <p class="error-text">
+        متأسفانه مشکلی در سرور رخ داده است. تیم فنی ما در حال بررسی و رفع این مشکل است. 
+        لطفاً چند لحظه دیگر دوباره تلاش کنید.
+    </p>
+    <a href="{% url 'core:home' %}" class="btn-home">
+        <svg class="icon icon-home" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#home" xlink:href="{{ icon_sprite }}#home"></use></svg>
+        بازگشت به صفحه اصلی
+    </a>
+</div>
+{% endblock %}

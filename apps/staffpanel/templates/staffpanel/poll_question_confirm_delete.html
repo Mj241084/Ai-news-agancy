@@ -1,0 +1,23 @@
+{% extends "staffpanel/base.html" %}
+
+{% block title %}حذف سؤال{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>حذف سؤال</h1>
+    <p>از حذف این سؤال مطمئن هستید؟</p>
+
+    <p>
+        <strong>{{ question.text }}</strong><br>
+        <span class="muted">نظرسنجی: {{ question.poll.title|default:"(بدون عنوان)" }}</span>
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="toolbar">
+            <button class="btn btn-danger" type="submit">حذف</button>
+            <a class="btn btn-secondary" href="{% url 'staffpanel:poll-edit' question.poll_id %}">انصراف</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

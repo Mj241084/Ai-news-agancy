@@ -1,0 +1,56 @@
+
+{% extends 'base.html' %}
+
+{% block title %}#{{ tag.name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <div style="display: flex; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-2);">
+            <span class="badge badge-secondary">برچسب</span>
+            <span style="font-size: var(--fs-3); font-weight: var(--fw-bold); color: var(--c-accent);">#{{ tag.name }}</span>
+        </div>
+        <p class="page-description">مطالب مرتبط با این برچسب</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="grid-2">
+        <div class="main-column">
+            {% if items %}
+                <div class="articles-list">
+                    {% for item in items %}
+                        {% include 'partials/_article_card.html' with item=item %}
+                    {% endfor %}
+                </div>
+                
+                {% include 'partials/_pagination.html' %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <svg class="icon icon-hashtag" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#hashtag" xlink:href="{{ icon_sprite }}#hashtag"></use></svg>
+                    </div>
+                    <h3 class="empty-state-title">مطلبی یافت نشد</h3>
+                    <p class="empty-state-text">هنوز مطلبی با این برچسب منتشر نشده است.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <svg class="icon icon-tags" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#tags" xlink:href="{{ icon_sprite }}#tags"></use></svg>
+                    برچسب‌های مشابه
+                </h3>
+                <div style="display: flex; flex-wrap: wrap; gap: var(--sp-2);">
+                    {% for related_tag in related_tags|default:''|slice:":10" %}
+                    <a href="{% url 'taxonomy:tag_detail' related_tag.slug %}" class="badge badge-outline">{{ related_tag.name }}</a>
+                    {% empty %}
+                    <p style="font-size: var(--fs-6); color: var(--c-muted);">برچسب مشابهی یافت نشد</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}

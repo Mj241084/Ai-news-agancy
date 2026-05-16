@@ -1,0 +1,13 @@
+{% extends "staffpanel/base.html" %}
+{% block title %}حذف رتبه‌بندی{% endblock %}
+{% block content %}
+<div class="card">
+    <h1>حذف رتبه‌بندی</h1>
+    <p>از حذف <strong>{{ object.title }}</strong> مطمئن هستید؟</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">بله، حذف شود</button>
+        <a href="{% url 'staffpanel:ranking-list' %}" class="btn btn-secondary">انصراف</a>
+    </form>
+</div>
+{% endblock %}

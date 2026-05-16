@@ -1,0 +1,97 @@
+
+{% extends 'base.html' %}
+
+{% block title %}صفحه یافت نشد{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        min-height: calc(100vh - var(--header-h) - 300px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: var(--sp-8) var(--sp-4);
+    }
+
+    .error-code {
+        font-size: 8rem;
+        font-weight: var(--fw-bold);
+        color: var(--c-accent);
+        line-height: 1;
+        margin-bottom: var(--sp-4);
+        opacity: 0.8;
+    }
+
+    .error-title {
+        font-size: var(--fs-2);
+        margin-bottom: var(--sp-3);
+    }
+
+    .error-text {
+        color: var(--c-muted);
+        margin-bottom: var(--sp-6);
+        max-width: 500px;
+    }
+
+    .error-actions {
+        display: flex;
+        gap: var(--sp-3);
+    }
+
+    .btn-home {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-2);
+        padding: var(--sp-3) var(--sp-5);
+        background-color: var(--c-accent);
+        color: var(--c-bg);
+        border-radius: var(--r-2);
+        font-weight: var(--fw-medium);
+        transition: background-color 0.2s ease;
+    }
+
+    .btn-home:hover {
+        background-color: var(--c-accent-hover);
+        color: var(--c-bg);
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-2);
+        padding: var(--sp-3) var(--sp-5);
+        background-color: var(--c-surface);
+        color: var(--c-text);
+        border-radius: var(--r-2);
+        font-weight: var(--fw-medium);
+        transition: background-color 0.2s ease;
+    }
+
+    .btn-back:hover {
+        background-color: var(--c-border);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-code">404</div>
+    <h1 class="error-title">صفحه مورد نظر یافت نشد</h1>
+    <p class="error-text">
+        متأسفانه صفحه‌ای که به دنبال آن بودید وجود ندارد یا منتقل شده است. 
+        لطفاً از طریق صفحه اصلی به جستجو ادامه دهید.
+    </p>
+    <div class="error-actions">
+        <a href="{% url 'core:home' %}" class="btn-home">
+            <svg class="icon icon-home" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#home" xlink:href="{{ icon_sprite }}#home"></use></svg>
+            صفحه اصلی
+        </a>
+        <button onclick="history.back()" class="btn-back">
+            <svg class="icon icon-forward" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#forward" xlink:href="{{ icon_sprite }}#forward"></use></svg>
+            بازگشت
+        </button>
+    </div>
+</div>
+{% endblock %}

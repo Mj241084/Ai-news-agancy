@@ -1,0 +1,53 @@
+{% load static %}
+<header class="site-header">
+    <div class="container header-inner">
+        <a href="{% url 'core:home' %}" class="logo">
+            <img
+                src="{% static 'images/Logo.webp' %}"
+                alt="AI News"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
+            >
+            <span>AI News</span>
+        </a>
+
+        <nav class="main-nav">
+            <a href="{% url 'core:home' %}" class="nav-link {% if active_nav == 'home' %}active{% endif %}">خانه</a>
+            <a href="{% url 'taxonomy:category_index' %}" class="nav-link {% if active_nav == 'categories' %}active{% endif %}">دسته‌بندی‌ها</a>
+            <a href="{% url 'content:news_list' %}" class="nav-link {% if active_nav == 'news' %}active{% endif %}">اخبار</a>
+            <a href="{% url 'content:article_list' %}" class="nav-link {% if active_nav == 'articles' %}active{% endif %}">مقالات</a>
+            <a href="{% url 'core:popular' %}" class="nav-link {% if active_nav == 'popular' %}active{% endif %}">محبوب‌ها</a>
+            <a href="{% url 'core:team_picks' %}" class="nav-link {% if active_nav == 'team-picks' %}active{% endif %}">پیشنهادی تیم</a>
+        </nav>
+
+        <div class="header-actions">
+            <!-- دکمه‌ای که فقط شامل آیکون است و فرم جستجو را باز می‌کند -->
+            <button type="button" class="search-toggle-btn" aria-label="باز کردن جستجو" onclick="document.querySelector('.site-header').classList.add('search-active'); setTimeout(() => document.getElementById('searchInput').focus(), 100);">
+                <svg class="icon icon-search" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#search" xlink:href="{{ icon_sprite }}#search"></use></svg>
+            </button>
+            
+            <form class="search-form" action="{% url 'core:search' %}" method="GET">
+                <button type="submit" class="search-submit-btn" aria-label="جستجو">
+                    <svg class="icon icon-search" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#search" xlink:href="{{ icon_sprite }}#search"></use></svg>
+                </button>
+                <input type="search" name="q" id="searchInput" class="search-input" placeholder="جستجو در مقالات و اخبار..." aria-label="جستجو" value="{{ request.GET.q|default:'' }}">
+                <!-- دکمه بستن جستجو -->
+                <button type="button" class="search-close-btn" aria-label="بستن جستجو" onclick="document.querySelector('.site-header').classList.remove('search-active');">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </form>
+            
+            {% if user.is_authenticated %}
+                <a href="{% url 'accounts:profile' %}" class="btn btn-outline">
+                    <svg class="icon icon-user" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#user" xlink:href="{{ icon_sprite }}#user"></use></svg>
+                </a>
+            {% else %}
+                <a href="{% url 'accounts:login' %}" class="btn btn-primary">
+                    <svg class="icon icon-Sign_In" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#Sign_In" xlink:href="{{ icon_sprite }}#Sign_In"></use></svg>
+                    <span>ورود</span>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</header>

@@ -1,0 +1,31 @@
+{% extends "staffpanel/base.html" %}
+
+{% block title %}حذف نظرسنجی{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>حذف نظرسنجی</h1>
+    <p>از حذف این نظرسنجی مطمئن هستید؟</p>
+
+    <p>
+        <strong>{{ object.title|default:"(بدون عنوان)" }}</strong><br>
+        <span class="muted">شناسه: {{ object.id }}</span>
+    </p>
+
+    {% if object.responses.exists %}
+        <p class="muted">این نظرسنجی پاسخ دارد و قابل حذف نیست.</p>
+        <div class="toolbar">
+            <a class="btn btn-secondary" href="{% url 'staffpanel:poll-list' %}">بازگشت</a>
+        </div>
+    {% else %}
+        <form method="post">
+            {% csrf_token %}
+            {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
+            <div class="toolbar">
+                <button class="btn btn-danger" type="submit">حذف</button>
+                <a class="btn btn-secondary" href="{% url 'staffpanel:poll-list' %}">انصراف</a>
+            </div>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

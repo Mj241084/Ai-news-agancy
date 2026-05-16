@@ -1,0 +1,84 @@
+{% extends "staffpanel/base.html" %}
+
+{% block title %}نظرسنجی‌ها{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>نظرسنجی‌ها</h1>
+
+    <form method="get" class="toolbar">
+        <select name="state">
+            {% for value, label in state_options %}
+                <option value="{{ value }}" {% if filters.state == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <input type="text" name="q" value="{{ filters.q }}" placeholder="جست‌وجوی عنوان یا شناسه">
+        <button class="btn" type="submit">اعمال</button>
+        <a class="btn btn-secondary" href="{% url 'staffpanel:poll-list' %}">بازنشانی</a>
+        <a class="btn" href="{% url 'staffpanel:poll-new' %}">نظرسنجی جدید</a>
+    </form>
+
+    {% if polls %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>عنوان</th>
+                        <th>وضعیت</th>
+                        <th>بازه زمانی</th>
+                        <th>تعداد سؤال</th>
+                        <th>تعداد پاسخ</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for poll in polls %}
+                        <tr>
+                            <td>
+                                <strong>{{ poll.title|default:"(بدون عنوان)" }}</strong><br>
+                                <span class="muted">شناسه: {{ poll.id }}</span>
+                            </td>
+                            <td>
+                                {% if not poll.is_active %}
+                                    <span class="badge badge-draft">غیرفعال</span>
+                                {% elif poll.starts_at and poll.starts_at > now %}
+                                    <span class="badge badge-draft">زمان‌بندی‌شده</span>
+                                {% elif poll.ends_at and poll.ends_at < now %}
+                                    <span class="badge badge-draft">پایان‌یافته</span>
+                                {% else %}
+                                    <span class="badge badge-published">فعال</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="muted">شروع:</span> {{ poll.starts_at|default:"-" }}<br>
+                                <span class="muted">پایان:</span> {{ poll.ends_at|default:"-" }}
+                            </td>
+                            <td>{{ poll.question_count }}</td>
+                            <td>{{ poll.response_count }}</td>
+                            <td class="actions">
+                                <a href="{% url 'staffpanel:poll-edit' poll.pk %}">ویرایش</a>
+                                <a href="{% url 'staffpanel:poll-stats' poll.pk %}">آمار</a>
+                                <a class="danger-link" href="{% url 'staffpanel:poll-delete' poll.pk %}?next={{ request.get_full_path|urlencode }}">حذف</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="muted">نظرسنجی‌ای پیدا نشد.</p>
+    {% endif %}
+
+    {% if page_obj %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a class="btn btn-secondary" href="?page={{ page_obj.previous_page_number }}&state={{ filters.state }}&q={{ filters.q }}">صفحه قبل</a>
+            {% endif %}
+            <span>صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a class="btn btn-secondary" href="?page={{ page_obj.next_page_number }}&state={{ filters.state }}&q={{ filters.q }}">صفحه بعد</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

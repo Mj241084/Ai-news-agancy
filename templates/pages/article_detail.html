@@ -1,0 +1,2327 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ article.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============================================
+       ARTICLE DETAIL - MODERN MINIMALIST REDESIGN
+       ============================================ */
+    
+    /* Override base container for article focus */
+    .main-content {
+        padding: 0;
+    }
+    
+    /* Article Layout Grid */
+    .article-layout {
+        display: grid;
+        grid-template-columns: 1fr 280px;
+        gap: var(--sp-8);
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: var(--sp-6) var(--sp-4);
+    }
+    
+    /* Main Article Column */
+    .article-main {
+        min-width: 0; /* Prevent overflow */
+    }
+    
+    /* Sidebar Column */
+    .article-sidebar {
+        position: sticky;
+        top: calc(var(--header-h) + var(--sp-6));
+        height: fit-content;
+        align-self: start;
+    }
+    
+    /* Article Header Section */
+    .article-hero-section {
+        background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-light) 100%);
+        color: var(--c-bg);
+        padding: var(--sp-8) 0;
+        margin-bottom: var(--sp-6);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .article-hero-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(74, 163, 255, 0.1) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    
+    .article-hero-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 var(--sp-4);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .article-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-2);
+        margin-bottom: var(--sp-4);
+        font-size: var(--fs-7);
+        opacity: 0.8;
+    }
+    
+    .article-breadcrumb a {
+        color: rgba(255, 255, 255, 0.8);
+        transition: color 0.2s ease;
+    }
+    
+    .article-breadcrumb a:hover {
+        color: var(--c-bg);
+    }
+    
+    .article-breadcrumb i {
+        font-size: 0.7rem;
+        opacity: 0.6;
+    }
+    
+    .article-title-hero {
+        font-size: clamp(var(--fs-2), 5vw, var(--fs-1));
+        font-weight: var(--fw-bold);
+        line-height: 1.3;
+        margin-bottom: var(--sp-4);
+        text-wrap: balance;
+    }
+    
+    .article-meta-hero {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-4);
+        flex-wrap: wrap;
+        font-size: var(--fs-6);
+    }
+    
+    .meta-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-1);
+        padding: var(--sp-1) var(--sp-3);
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: var(--r-2);
+        backdrop-filter: blur(10px);
+        font-weight: var(--fw-medium);
+    }
+    
+    .meta-badge i {
+        color: var(--c-accent);
+    }
+    
+    .meta-date {
+        opacity: 0.9;
+    }
+    
+    /* Article Featured Image */
+    .article-featured-image {
+        width: 100%;
+        max-width: 1000px;
+        margin: 0 auto var(--sp-6);
+        border-radius: var(--r-4);
+        overflow: hidden;
+        box-shadow: var(--sh-3);
+        position: relative;
+        top: -40px;
+        margin-bottom: -20px;
+    }
+    
+    .article-featured-image img {
+        width: 100%;
+        height: auto;
+        display: block;
+        aspect-ratio: 16/9;
+        object-fit: cover;
+    }
+
+    /* Featured Video (direct link) */
+    .article-featured-media {
+        width: 100%;
+        max-width: 1000px;
+        margin: 0 auto var(--sp-6);
+        border-radius: var(--r-4);
+        overflow: hidden;
+        box-shadow: var(--sh-3);
+        position: relative;
+        top: -40px;
+        margin-bottom: -20px;
+        background: #0f172a;
+    }
+
+    .video-placeholder {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16/9;
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+    }
+
+    .video-placeholder img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .video-poster-fallback {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        place-items: center;
+        color: rgba(255,255,255,0.85);
+        font-size: 2.5rem;
+        background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 60%);
+    }
+
+    .video-play-btn {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: 74px;
+        height: 74px;
+        border-radius: 999px;
+        border: none;
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(10px);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-size: 1.4rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+        transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    .video-play-btn:hover {
+        transform: scale(1.05);
+        background: rgba(255,255,255,0.28);
+    }
+
+    video.video-player {
+        width: 100%;
+        height: auto;
+        display: block;
+        aspect-ratio: 16/9;
+        background: #000;
+    }
+
+    
+    /* Article Content Body */
+    .article-content-wrapper {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 0 var(--sp-4);
+    }
+    
+    .article-body {
+        font-size: var(--fs-5);
+        line-height: 1.9;
+        color: var(--c-text);
+        text-align: justify;
+    }
+    
+    .article-body p {
+        margin-bottom: var(--sp-5);
+    }
+    
+    .article-body h2 {
+        font-size: var(--fs-3);
+        color: var(--c-primary);
+        margin-top: var(--sp-7);
+        margin-bottom: var(--sp-4);
+        font-weight: var(--fw-bold);
+        position: relative;
+        padding-right: var(--sp-4);
+        border-right: 4px solid var(--c-accent);
+    }
+    
+    .article-body h3 {
+        font-size: var(--fs-4);
+        color: var(--c-text);
+        margin-top: var(--sp-6);
+        margin-bottom: var(--sp-3);
+        font-weight: var(--fw-semibold);
+    }
+    
+    .article-body ul,
+    .article-body ol {
+        margin-bottom: var(--sp-5);
+        padding-right: var(--sp-6);
+    }
+    
+    .article-body li {
+        margin-bottom: var(--sp-3);
+        position: relative;
+    }
+    
+    .article-body ul li::marker {
+        color: var(--c-accent);
+    }
+    
+    .article-body blockquote {
+        background: linear-gradient(135deg, var(--c-surface) 0%, #f8fafc 100%);
+        border-right: 4px solid var(--c-accent);
+        padding: var(--sp-5);
+        margin: var(--sp-6) 0;
+        border-radius: var(--r-2);
+        font-style: italic;
+        position: relative;
+        box-shadow: var(--sh-1);
+    }
+    
+    .article-body blockquote::before {
+        content: '"';
+        position: absolute;
+        top: var(--sp-2);
+        right: var(--sp-3);
+        font-size: 4rem;
+        color: var(--c-accent);
+        opacity: 0.2;
+        font-family: Georgia, serif;
+        line-height: 1;
+    }
+    
+    .article-body code {
+        background-color: var(--c-surface);
+        padding: var(--sp-1) var(--sp-2);
+        border-radius: var(--r-1);
+        font-family: 'Fira Code', 'Courier New', monospace;
+        font-size: 0.9em;
+        color: var(--c-primary);
+        border: 1px solid var(--c-border);
+    }
+    
+    .article-body pre {
+        background-color: #1e293b;
+        color: #e2e8f0;
+        padding: var(--sp-5);
+        border-radius: var(--r-3);
+        overflow-x: auto;
+        margin: var(--sp-5) 0;
+        direction: ltr;
+        text-align: left;
+        box-shadow: var(--sh-2);
+    }
+    
+    .article-body pre code {
+        background: none;
+        padding: 0;
+        color: inherit;
+        border: none;
+        font-size: 0.95em;
+        line-height: 1.6;
+    }
+    
+    .article-body img {
+        border-radius: var(--r-2);
+        margin: var(--sp-5) 0;
+        box-shadow: var(--sh-1);
+        max-width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    /* Inline media inside markdown body */
+    .article-body figure {
+        margin: var(--sp-5) 0;
+    }
+
+    .article-body figure > img,
+    .article-body figure > video {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .article-body video {
+        aspect-ratio: 16/9;
+        background: #000;
+        border-radius: var(--r-2);
+        box-shadow: var(--sh-1);
+    }
+
+    .article-body audio {
+        width: 100%;
+        display: block;
+        margin: var(--sp-4) 0;
+    }
+
+    .article-body figcaption {
+        margin-top: var(--sp-2);
+        opacity: 0.75;
+        font-size: 0.95em;
+    }
+    
+    /* Article Actions Bar */
+    .article-actions-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--sp-4) 0;
+        margin: var(--sp-6) 0;
+        border-top: 1px solid var(--c-border);
+        border-bottom: 1px solid var(--c-border);
+        position: sticky;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        z-index: 50;
+        margin-left: calc(-1 * var(--sp-4));
+        margin-right: calc(-1 * var(--sp-4));
+        padding-left: var(--sp-4);
+        padding-right: var(--sp-4);
+    }
+    
+    .actions-group {
+        display: flex;
+        gap: var(--sp-2);
+    }
+    
+    .action-btn-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-2);
+        padding: var(--sp-2) var(--sp-4);
+        border-radius: var(--r-2);
+        background: var(--c-surface);
+        color: var(--c-muted);
+        font-weight: var(--fw-medium);
+        font-size: var(--fs-6);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid transparent;
+    }
+    
+    .action-btn-modern:hover {
+        background: var(--c-bg);
+        border-color: var(--c-border);
+        color: var(--c-text);
+        transform: translateY(-1px);
+        box-shadow: var(--sh-1);
+    }
+    
+    .action-btn-modern.active {
+        background: var(--c-accent);
+        color: var(--c-bg);
+    }
+    
+    .action-btn-modern.active:hover {
+        background: var(--c-accent-hover);
+    }
+    
+    .action-btn-modern i {
+        font-size: 1.1em;
+    }
+    
+    .article-stats-modern {
+        display: flex;
+        gap: var(--sp-4);
+        font-size: var(--fs-6);
+        color: var(--c-muted);
+    }
+    
+    .stat-modern {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-1);
+    }
+    
+    /* Sidebar Widgets */
+    .sidebar-widget {
+        background: var(--c-surface);
+        border-radius: var(--r-3);
+        padding: var(--sp-5);
+        margin-bottom: var(--sp-4);
+    }
+    
+    .widget-title {
+        font-size: var(--fs-6);
+        font-weight: var(--fw-bold);
+        color: var(--c-primary);
+        margin-bottom: var(--sp-4);
+        display: flex;
+        align-items: center;
+        gap: var(--sp-2);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .widget-title i {
+        color: var(--c-accent);
+    }
+    
+    /* Table of Contents */
+    .toc-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .toc-item {
+        margin-bottom: var(--sp-2);
+    }
+    
+    .toc-link {
+        display: block;
+        padding: var(--sp-2) var(--sp-3);
+        color: var(--c-muted);
+        font-size: var(--fs-6);
+        border-radius: var(--r-1);
+        transition: all 0.2s ease;
+        position: relative;
+        padding-right: var(--sp-4);
+    }
+    
+    .toc-link::before {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 0;
+        background: var(--c-accent);
+        transition: height 0.2s ease;
+        border-radius: 2px;
+    }
+    
+    .toc-link:hover,
+    .toc-link.active {
+        color: var(--c-text);
+        background: rgba(74, 163, 255, 0.1);
+    }
+    
+    .toc-link:hover::before,
+    .toc-link.active::before {
+        height: 60%;
+    }
+    
+    /* Author Widget */
+    .author-card {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-3);
+    }
+    
+    .author-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--c-accent) 0%, var(--c-accent-hover) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: var(--fs-4);
+        font-weight: var(--fw-bold);
+        flex-shrink: 0;
+    }
+    
+    .author-info h4 {
+        font-size: var(--fs-5);
+        margin-bottom: var(--sp-1);
+        color: var(--c-text);
+    }
+    
+    .author-info p {
+        font-size: var(--fs-7);
+        color: var(--c-muted);
+        margin: 0;
+    }
+    
+    /* Share Widget */
+    .share-buttons {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--sp-2);
+    }
+    
+    .share-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--sp-2);
+        padding: var(--sp-3);
+        border-radius: var(--r-2);
+        background: var(--c-bg);
+        color: var(--c-muted);
+        font-size: var(--fs-6);
+        font-weight: var(--fw-medium);
+        transition: all 0.2s ease;
+        border: 1px solid var(--c-border);
+    }
+    
+    .share-btn:hover {
+        background: var(--c-primary);
+        color: var(--c-bg);
+        border-color: var(--c-primary);
+        transform: translateY(-2px);
+    }
+    
+    /* Comments Section */
+    /* Sources section */
+    .sources-section-modern {
+        max-width: 720px;
+        margin: var(--sp-7) auto 0;
+        padding: 0 var(--sp-4);
+    }
+    .sources-card {
+        background: var(--c-surface);
+        border: 1px solid var(--c-border);
+        border-radius: var(--r-4);
+        padding: var(--sp-5);
+        box-shadow: var(--sh-1);
+    }
+    .sources-title {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-2);
+        font-size: var(--fs-4);
+        margin: 0 0 var(--sp-4);
+        color: var(--c-text);
+        font-weight: var(--fw-semibold);
+    }
+    .sources-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: var(--sp-3);
+    }
+    .source-item {
+        display: grid;
+        gap: var(--sp-1);
+        padding: var(--sp-3);
+        border: 1px solid var(--c-border);
+        border-radius: var(--r-3);
+        background: rgba(0,0,0,0.02);
+    }
+    .source-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--sp-2);
+    }
+    .source-badge {
+        font-size: var(--fs-7);
+        padding: 2px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--c-border);
+        color: var(--c-muted);
+    }
+    .source-link {
+        color: var(--c-primary);
+        text-decoration: none;
+        word-break: break-word;
+    }
+    .source-link:hover { text-decoration: underline; }
+    .source-note { color: var(--c-muted); font-size: var(--fs-6); }
+
+    .comments-section-modern {
+        max-width: 720px;
+        margin: var(--sp-8) auto 0;
+        padding: var(--sp-6) var(--sp-4) 0;
+        border-top: 2px solid var(--c-border);
+    }
+    
+    .section-header-modern {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: var(--sp-5);
+    }
+    
+    .section-title-modern {
+        font-size: var(--fs-3);
+        font-weight: var(--fw-bold);
+        color: var(--c-primary);
+        display: flex;
+        align-items: center;
+        gap: var(--sp-3);
+    }
+    
+    .section-title-modern i {
+        color: var(--c-accent);
+    }
+    
+    .comment-count-badge {
+        background: var(--c-accent);
+        color: var(--c-bg);
+        padding: var(--sp-1) var(--sp-3);
+        border-radius: var(--r-2);
+        font-size: var(--fs-6);
+        font-weight: var(--fw-bold);
+    }
+    
+    .comments-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--sp-4);
+    }
+    
+    .comment-card {
+        background: var(--c-surface);
+        border-radius: var(--r-3);
+        padding: var(--sp-5);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .comment-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--sh-2);
+    }
+    
+    .comment-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: var(--sp-3);
+    }
+    
+    .comment-author {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-3);
+    }
+    
+    .comment-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--c-primary);
+        color: var(--c-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: var(--fw-bold);
+        font-size: var(--fs-6);
+    }
+    
+    .comment-meta h5 {
+        font-size: var(--fs-5);
+        margin-bottom: var(--sp-1);
+        color: var(--c-text);
+    }
+    
+    .comment-date {
+        font-size: var(--fs-7);
+        color: var(--c-muted);
+    }
+    
+    .comment-text {
+        color: var(--c-text);
+        line-height: 1.7;
+        margin: 0;
+    }
+
+    .comment-form-modern {
+        background: var(--c-surface);
+        border-radius: var(--r-3);
+        padding: var(--sp-4);
+        margin-bottom: var(--sp-5);
+    }
+
+    .comment-textarea {
+        width: 100%;
+        min-height: 120px;
+        resize: vertical;
+        border: 1px solid var(--c-border);
+        border-radius: var(--r-2);
+        padding: var(--sp-3);
+        font: inherit;
+        color: var(--c-text);
+        background: var(--c-bg);
+        line-height: 1.8;
+    }
+
+    .comment-textarea:focus {
+        outline: none;
+        border-color: var(--c-accent);
+        box-shadow: 0 0 0 3px rgba(74, 163, 255, 0.15);
+    }
+
+    .comment-form-actions {
+        margin-top: var(--sp-3);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--sp-3);
+    }
+
+    .comment-char-count {
+        color: var(--c-muted);
+        font-size: var(--fs-7);
+    }
+
+    .comment-status {
+        margin-top: var(--sp-3);
+        font-size: var(--fs-6);
+        font-weight: var(--fw-medium);
+    }
+
+    .comment-status.success {
+        color: #16a34a;
+    }
+
+    .comment-status.error {
+        color: #dc2626;
+    }
+
+    .comment-login-hint {
+        margin-bottom: var(--sp-5);
+    }
+    
+    /* Related Articles */
+    .related-section-modern {
+        max-width: 1200px;
+        margin: var(--sp-8) auto 0;
+        padding: var(--sp-6) var(--sp-4);
+        background: var(--c-surface);
+    }
+    
+    .related-grid-modern {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--sp-5);
+        margin-top: var(--sp-5);
+    }
+    
+    .related-card {
+        background: var(--c-bg);
+        border-radius: var(--r-3);
+        overflow: hidden;
+        box-shadow: var(--sh-1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid var(--c-border);
+    }
+    
+    .related-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--sh-3);
+    }
+    
+    .related-image {
+        aspect-ratio: 16/10;
+        overflow: hidden;
+        background: var(--c-surface);
+    }
+    
+    .related-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .related-card:hover .related-image img {
+        transform: scale(1.05);
+    }
+    
+    .related-content {
+        padding: var(--sp-4);
+    }
+    
+    .related-title {
+        font-size: var(--fs-5);
+        font-weight: var(--fw-bold);
+        line-height: 1.4;
+        color: var(--c-text);
+        margin-bottom: var(--sp-2);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .related-card:hover .related-title {
+        color: var(--c-accent);
+    }
+    
+    /* Loading States */
+    .skeleton {
+        background: linear-gradient(90deg, var(--c-surface) 25%, #e5e7eb 50%, var(--c-surface) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: var(--r-2);
+    }
+    
+    @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+    
+    .loading-state {
+        text-align: center;
+        padding: var(--sp-8);
+        color: var(--c-muted);
+    }
+    
+    .spinner-modern {
+        width: 48px;
+        height: 48px;
+        border: 3px solid var(--c-surface);
+        border-top-color: var(--c-accent);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto var(--sp-4);
+    }
+    
+    /* Empty States */
+    .empty-state-modern {
+        text-align: center;
+        padding: var(--sp-8) var(--sp-4);
+        color: var(--c-muted);
+    }
+    
+    .empty-state-modern i {
+        font-size: 3rem;
+        margin-bottom: var(--sp-4);
+        opacity: 0.5;
+    }
+    
+    /* ============================================
+       RESPONSIVE OVERRIDES
+       ============================================ */
+    
+    /* Tablet (768px - 1024px) */
+    @media (max-width: 1024px) {
+        .article-layout {
+            grid-template-columns: 1fr;
+            gap: var(--sp-6);
+        }
+        
+        .article-sidebar {
+            position: static;
+            order: 2;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--sp-4);
+        }
+        
+        .sidebar-widget {
+            margin-bottom: 0;
+        }
+        
+        .toc-widget {
+            display: none; /* Hide TOC on tablet for simplicity */
+        }
+    }
+    
+    /* Mobile (< 768px) */
+    @media (max-width: 768px) {
+        .article-hero-section {
+            padding: var(--sp-6) 0;
+        }
+        
+        .article-title-hero {
+            font-size: var(--fs-2);
+        }
+        
+        .article-meta-hero {
+            font-size: var(--fs-7);
+        }
+        
+        .article-featured-image {
+            border-radius: 0;
+            top: 0;
+            margin-bottom: var(--sp-4);
+        }
+        
+        .article-content-wrapper {
+            padding: 0 var(--sp-3);
+        }
+        
+        .article-body {
+            font-size: var(--fs-6);
+            line-height: 1.8;
+        }
+        
+        .article-body h2 {
+            font-size: var(--fs-4);
+            margin-top: var(--sp-5);
+        }
+        
+        .article-actions-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: 0;
+            padding: var(--sp-3);
+            background: rgba(255, 255, 255, 0.98);
+            border-top: 1px solid var(--c-border);
+            border-bottom: none;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .action-btn-modern span {
+            display: none;
+        }
+        
+        .action-btn-modern {
+            padding: var(--sp-3);
+        }
+        
+        .article-stats-modern {
+            font-size: var(--fs-7);
+            gap: var(--sp-3);
+        }
+        
+        .article-sidebar {
+            grid-template-columns: 1fr;
+            order: 2;
+        }
+        
+        .share-buttons {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
+        .share-btn span {
+            display: none;
+        }
+        
+        .related-grid-modern {
+            grid-template-columns: 1fr;
+            gap: var(--sp-4);
+        }
+        
+        .comments-section-modern,
+        .related-section-modern {
+            margin-top: var(--sp-6);
+            padding-top: var(--sp-4);
+        }
+        
+        /* Add padding for fixed bottom bar */
+        .article-main {
+            padding-bottom: 80px;
+        }
+    }
+    
+    /* Small Mobile (< 480px) */
+    @media (max-width: 480px) {
+        .article-title-hero {
+            font-size: var(--fs-3);
+        }
+        
+        .article-meta-hero {
+            gap: var(--sp-2);
+        }
+        
+        .meta-badge {
+            padding: var(--sp-1) var(--sp-2);
+        }
+        
+        .article-body blockquote {
+            padding: var(--sp-4);
+            margin: var(--sp-4) 0;
+        }
+        
+        .comment-card {
+            padding: var(--sp-4);
+        }
+    }
+    
+    /* ============================================
+       HEADER & FOOTER RESPONSIVE OVERRIDES
+       ============================================ */
+    
+    @media (max-width: 1024px) {
+        .container {
+            width: 100%;
+            padding: 0 var(--sp-4);
+        }
+        
+        .main-nav {
+            gap: var(--sp-4);
+        }
+        
+        .search-input {
+            width: 180px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .site-header {
+            height: auto;
+            min-height: var(--header-h);
+        }
+        
+        .header-inner {
+            flex-wrap: wrap;
+            padding: var(--sp-3) 0;
+            gap: var(--sp-3);
+        }
+        
+        .logo {
+            font-size: var(--fs-5);
+        }
+        
+        .main-nav {
+            order: 3;
+            width: 100%;
+            justify-content: center;
+            gap: var(--sp-3);
+            padding-top: var(--sp-2);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: var(--sp-2);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .nav-link {
+            font-size: var(--fs-6);
+            white-space: nowrap;
+            padding: var(--sp-2) var(--sp-1);
+        }
+        
+        .header-actions {
+            flex: 1;
+            justify-content: flex-end;
+        }
+        
+        .search-form {
+            display: none; /* Hide search on mobile, can be toggled */
+        }
+        
+        .btn span {
+            display: none;
+        }
+        
+        .btn {
+            padding: var(--sp-2);
+        }
+        
+        /* Footer Responsive */
+        .footer-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: var(--sp-5);
+        }
+        
+        .footer-col:first-child {
+            grid-column: 1 / -1;
+        }
+        
+        .footer-bottom {
+            flex-direction: column;
+            gap: var(--sp-2);
+            text-align: center;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .footer-grid {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+        
+        .footer-brand {
+            justify-content: center;
+        }
+        
+        .footer-links {
+            align-items: center;
+        }
+    }
+
+    /* Satisfaction Rating */
+    .rating-section-modern {
+        margin-top: var(--sp-6);
+        padding: var(--sp-5);
+        border: 1px solid var(--c-border);
+        border-radius: var(--r-3);
+        background: linear-gradient(135deg, var(--c-surface) 0%, #f8fafc 100%);
+        box-shadow: var(--sh-1);
+    }
+
+    .rating-title-modern {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-2);
+        margin: 0 0 var(--sp-3);
+        font-size: var(--fs-4);
+        color: var(--c-text);
+    }
+
+    .rating-title-modern i {
+        color: var(--c-accent);
+    }
+
+    .rating-stars {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-2);
+        margin: 0 0 var(--sp-2);
+        flex-wrap: wrap;
+    }
+
+    .rating-star-btn {
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-size: 1.8rem;
+        line-height: 1;
+        padding: var(--sp-1) var(--sp-2);
+        border-radius: var(--r-2);
+        color: var(--c-border);
+        transition: transform 0.15s ease, color 0.15s ease, background 0.15s ease;
+    }
+
+    .rating-star-btn:hover {
+        transform: translateY(-1px);
+        background: rgba(74, 163, 255, 0.08);
+    }
+
+    .rating-star-btn.active {
+        color: var(--c-accent);
+    }
+
+    .rating-meta {
+        font-size: var(--fs-6);
+        color: var(--c-muted);
+        margin-bottom: var(--sp-2);
+    }
+
+
+    /* Comment Replies */
+    .comment-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: var(--sp-3);
+    }
+
+    .comment-replies {
+        margin-top: var(--sp-4);
+        padding-right: var(--sp-4);
+        border-right: 2px solid var(--c-border);
+        display: grid;
+        gap: var(--sp-3);
+    }
+
+    .reply-card {
+        background: rgba(15, 23, 40, 0.02);
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Article Hero Section -->
+<section class="article-hero-section">
+    <div class="article-hero-container">
+        <nav class="article-breadcrumb">
+            <a href="{% url 'core:home' %}">خانه</a>
+            <svg class="icon icon-back" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#back" xlink:href="{{ icon_sprite }}#back"></use></svg>
+            <a href="{% url 'content:article_list' %}">مقالات</a>
+            <svg class="icon icon-back" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#back" xlink:href="{{ icon_sprite }}#back"></use></svg>
+            <span>{{ article.title|truncatechars:30 }}</span>
+        </nav>
+        
+        <h1 class="article-title-hero">{{ article.title }}</h1>
+        
+        <div class="article-meta-hero">
+            <span class="meta-badge">
+                <svg class="icon icon-hot_article" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#hot_article" xlink:href="{{ icon_sprite }}#hot_article"></use></svg>
+                {% if article.content_type == 'short_news' %}خبر{% else %}مقاله{% endif %}
+            </span>
+            
+            {% for cat in article.categories|slice:":2" %}
+            <a href="{% url 'taxonomy:category_detail' cat.slug %}" class="meta-badge" style="text-decoration: none;">
+                {{ cat.name|default:cat.title }}
+            </a>
+            {% endfor %}
+            
+            <span class="meta-date">
+                {{ article.published_at|date:"Y/m/d" }}
+            </span>
+        </div>
+    </div>
+</section>
+
+<div class="article-layout">
+    <article class="article-main">
+        <div class="article-content-wrapper">
+            {% if article.video_url %}
+            {% with poster=article.video_thumbnail|default:article.thumbnail|default:article.hero_image %}
+            <div class="article-featured-media">
+                <div class="video-placeholder" id="video-placeholder" data-video-url="{{ article.video_url }}" data-poster="{{ poster|default:'' }}">
+                    {% if poster %}
+                        <img src="{{ poster }}" alt="{{ article.title }}" loading="eager" fetchpriority="high" decoding="async">
+                    {% else %}
+                        <div class="video-poster-fallback">
+                            <svg class="icon icon-play" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#play" xlink:href="{{ icon_sprite }}#play"></use></svg>
+                        </div>
+                    {% endif %}
+                    <button type="button" class="video-play-btn" id="video-play-btn" aria-label="پخش ویدیو">
+                        <svg class="icon icon-play" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#play" xlink:href="{{ icon_sprite }}#play"></use></svg>
+                    </button>
+                </div>
+            </div>
+            {% endwith %}
+            {% elif article.hero_image %}
+            <div class="article-featured-image">
+                <img src="{{ article.hero_image }}" alt="{{ article.title }}" loading="eager" fetchpriority="high" decoding="async">
+            </div>
+            {% endif %}
+
+            <div class="article-body" id="article-content">
+                {{ article.body_html|safe }}
+            </div>
+            
+                        <!-- Article Actions -->
+            <div class="article-actions-bar">
+                <div class="actions-group">
+                    <button class="action-btn-modern" onclick="shareArticle(); recordShare();" aria-label="اشتراک‌گذاری">
+                        <svg class="icon icon-Share" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#Share" xlink:href="{{ icon_sprite }}#Share"></use></svg>
+                        <span>اشتراک‌گذاری</span>
+                    </button>
+                </div>
+
+                <div class="article-stats-modern">
+                    <div class="stat-modern" title="بازدید">
+                        <svg class="icon icon-eye" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#eye" xlink:href="{{ icon_sprite }}#eye"></use></svg>
+                        <span id="view-count">...</span>
+                    </div>
+                    <div class="stat-modern" title="امتیاز کاربران">
+                        <svg class="icon icon-star" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#star" xlink:href="{{ icon_sprite }}#star"></use></svg>
+                        <span id="rating-avg">...</span>
+                        <span class="muted" style="font-size: 0.85em;">(<span id="rating-count">0</span>)</span>
+                    </div>
+                    <div class="stat-modern" title="نظرات">
+                        <svg class="icon icon-comments" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#comments" xlink:href="{{ icon_sprite }}#comments"></use></svg>
+                        <span id="comment-count">...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Satisfaction Rating -->
+            <section class="rating-section-modern" id="rating-section">
+                <h3 class="rating-title-modern">
+                    <svg class="icon icon-star" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#star" xlink:href="{{ icon_sprite }}#star"></use></svg>
+                    چقدر از این {% if article.content_type == 'short_news' %}خبر{% else %}مقاله{% endif %} راضی بودید؟
+                </h3>
+
+                <div class="rating-stars" id="rating-stars" role="radiogroup" aria-label="امتیازدهی از 1 تا 5">
+                    <button type="button" class="rating-star-btn" data-rating="1" aria-label="۱ از ۵">★</button>
+                    <button type="button" class="rating-star-btn" data-rating="2" aria-label="۲ از ۵">★</button>
+                    <button type="button" class="rating-star-btn" data-rating="3" aria-label="۳ از ۵">★</button>
+                    <button type="button" class="rating-star-btn" data-rating="4" aria-label="۴ از ۵">★</button>
+                    <button type="button" class="rating-star-btn" data-rating="5" aria-label="۵ از ۵">★</button>
+                </div>
+
+                <div class="rating-meta">
+                    <span class="muted">میانگین:</span>
+                    <strong><span id="rating-avg-inline">...</span></strong>
+                    <span class="muted">از ۵</span>
+                    <span class="muted">•</span>
+                    <span class="muted"><span id="rating-count-inline">0</span> رأی</span>
+                    <span class="muted" id="your-rating-wrapper" style="display:none;">• امتیاز شما: <strong><span id="your-rating">0</span></strong></span>
+                </div>
+
+                <div id="rating-status" class="comment-status" style="display:none;"></div>
+            </section>
+
+<!-- Comments Section -->
+{% if article.sources %}
+<section class="sources-section-modern" id="sources-section">
+    <div class="sources-card">
+        <h2 class="sources-title">
+            <svg class="icon icon-link" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#link" xlink:href="{{ icon_sprite }}#link"></use></svg>
+            منابع
+        </h2>
+        <ul class="sources-list">
+            {% for src in article.sources %}
+                <li class="source-item">
+                    <div class="source-head">
+                        <strong>{{ src.source.name }}</strong>
+                        {% if src.source.type_label %}<span class="source-badge">{{ src.source.type_label }}</span>{% endif %}
+                    </div>
+                    <a class="source-link" href="{{ src.original_url }}" target="_blank" rel="noopener noreferrer nofollow">{{ src.original_url }}</a>
+                    {% if src.note %}<div class="source-note">{{ src.note }}</div>{% endif %}
+                    {% if src.confidence != None %}<div class="source-note">اعتماد: {{ src.confidence|floatformat:2 }}</div>{% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+{% endif %}
+
+<section class="comments-section-modern" id="comments-section">
+            <div class="section-header-modern">
+                <h2 class="section-title-modern">
+                    <svg class="icon icon-comments" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#comments" xlink:href="{{ icon_sprite }}#comments"></use></svg>
+                    نظرات
+                </h2>
+                <span class="comment-count-badge" id="comment-badge">...</span>
+            </div>
+            {% if user.is_authenticated %}
+            <div class="comment-form-modern">
+                <form id="comment-form">
+                    <textarea
+                        id="comment-text"
+                        class="comment-textarea"
+                        placeholder="نظر خود را بنویسید..."
+                        maxlength="2000"
+                        required
+                    ></textarea>
+                    <div class="comment-form-actions">
+                        <span class="comment-char-count" id="comment-char-count">0 / 2000</span>
+                        <button type="submit" class="action-btn-modern">
+                            <svg class="icon icon-paper_plane" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#paper_plane" xlink:href="{{ icon_sprite }}#paper_plane"></use></svg>
+                            <span>ثبت نظر</span>
+                        </button>
+                    </div>
+                </form>
+                <div id="comment-status" class="comment-status" style="display: none;"></div>
+            </div>
+            {% else %}
+            <div class="empty-state-modern comment-login-hint">
+                <svg class="icon icon-user" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#user" xlink:href="{{ icon_sprite }}#user"></use></svg>
+                <h4>برای ثبت نظر وارد حساب خود شوید</h4>
+                <p>
+                    <a href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}" style="color: var(--c-accent); font-weight: var(--fw-semibold);">
+                        ورود به حساب کاربری
+                    </a>
+                </p>
+            </div>
+            {% endif %}
+            <div id="comments-container">
+                <div class="loading-state">
+                    <div class="spinner-modern"></div>
+                    <p>در حال بارگذاری نظرات...</p>
+                </div>
+            </div>
+        </section>
+    </article>
+    
+    <!-- Sidebar -->
+    <aside class="article-sidebar">
+        <!-- Table of Contents -->
+        <div class="sidebar-widget toc-widget">
+            <h3 class="widget-title">
+                <svg class="icon icon-list" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#list" xlink:href="{{ icon_sprite }}#list"></use></svg>
+                فهرست مطالب
+            </h3>
+            <ul class="toc-list" id="toc-list">
+                <!-- Generated by JS -->
+            </ul>
+        </div>
+        
+        <!-- Author Widget -->
+        <div class="sidebar-widget">
+            <h3 class="widget-title">
+                <svg class="icon icon-edit" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#edit" xlink:href="{{ icon_sprite }}#edit"></use></svg>
+                نویسنده
+            </h3>
+            <div class="author-card">
+                <div class="author-avatar">
+                    <svg class="icon icon-user" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#user" xlink:href="{{ icon_sprite }}#user"></use></svg>
+                </div>
+                <div class="author-info">
+                    <h4>تیم تحریریه</h4>
+                    <p>منتشر شده در AI News</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Share Widget -->
+        <div class="sidebar-widget">
+            <h3 class="widget-title">
+                <svg class="icon icon-Share" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#Share" xlink:href="{{ icon_sprite }}#Share"></use></svg>
+                اشتراک‌گذاری
+            </h3>
+            <div class="share-buttons">
+                <button class="share-btn" onclick="shareTo('twitter')" aria-label="توییتر">
+                    <svg class="icon icon-twitter" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#twitter" xlink:href="{{ icon_sprite }}#twitter_2"></use></svg>
+                    <span>توییتر</span>
+                </button>
+                <button class="share-btn" onclick="shareTo('linkedin')" aria-label="لینکدین">
+                    <svg class="icon icon-linkedin" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#linkedin" xlink:href="{{ icon_sprite }}#linkedin"></use></svg>
+                    <span>لینکدین</span>
+                </button>
+                <button class="share-btn" onclick="shareTo('telegram')" aria-label="تلگرام">
+                    <svg class="icon icon-telegram_app" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#telegram_app" xlink:href="{{ icon_sprite }}#telegram_app"></use></svg>
+                    <span>تلگرام</span>
+                </button>
+                <button class="share-btn" onclick="copyLink(this)" aria-label="کپی لینک">
+                    <svg class="icon icon-link" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#link" xlink:href="{{ icon_sprite }}#link"></use></svg>
+                    <span>کپی لینک</span>
+                </button>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<!-- Related Articles -->
+<section class="related-section-modern" id="related-section">
+    <div class="article-hero-container" style="max-width: 1200px;">
+        <div class="section-header-modern" style="margin-bottom: 0;">
+            <h2 class="section-title-modern">
+                <svg class="icon icon-layers" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#layers" xlink:href="{{ icon_sprite }}#layers"></use></svg>
+                مطالب مرتبط
+            </h2>
+        </div>
+    </div>
+    <div class="article-hero-container" style="max-width: 1200px;">
+        <div id="related-container">
+            <div class="loading-state">
+                <div class="spinner-modern"></div>
+                <p>در حال بارگذاری...</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<form style="display:none;">
+    {% csrf_token %}
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const articleSlug = '{{ article.slug }}';
+    const statsUrl = '{{ ajax_urls.stats }}';
+    const commentsUrl = '{{ ajax_urls.comments }}';
+    const relatedUrl = '{{ ajax_urls.related }}';
+    const actionsUrl = '{{ ajax_urls.actions }}';
+    const isAuthenticated = {{ user.is_authenticated|yesno:"true,false" }};
+
+    let currentCommentsPage = 1;
+    let commentsHasNext = false;
+    let currentUserRating = 0;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        loadStats();
+        initLazyComments();
+        initLazyRelated();
+        scheduleViewRecord();
+        generateTOC();
+        initTOCObserver();
+        initRatingStars();
+        initVideoPlayer();
+
+        const commentForm = document.getElementById('comment-form');
+        const commentText = document.getElementById('comment-text');
+        const commentCharCount = document.getElementById('comment-char-count');
+
+        if (commentText && commentCharCount) {
+            const syncCount = () => {
+                commentCharCount.textContent = `${commentText.value.length} / 2000`;
+            };
+            commentText.addEventListener('input', syncCount);
+            syncCount();
+        }
+
+        if (commentForm) {
+            commentForm.addEventListener('submit', submitComment);
+        }
+    });
+
+    // Featured Video (lazy-load)
+    function initVideoPlayer() {
+        const placeholder = document.getElementById('video-placeholder');
+        if (!placeholder) return;
+
+        const url = placeholder.dataset.videoUrl || '';
+        const poster = placeholder.dataset.poster || '';
+        const btn = document.getElementById('video-play-btn');
+
+        const mountVideo = () => {
+            if (!url) return;
+            const video = document.createElement('video');
+            video.className = 'video-player';
+            video.src = url;
+            video.controls = true;
+            video.preload = 'metadata';
+            video.playsInline = true;
+            if (poster) video.poster = poster;
+
+            placeholder.replaceWith(video);
+            video.play().catch(() => {});
+        };
+
+        if (btn) btn.addEventListener('click', (e) => { e.stopPropagation(); mountVideo(); });
+        placeholder.addEventListener('click', () => mountVideo());
+    }
+
+    // Generate Table of Contents
+    function generateTOC() {
+        const articleContent = document.getElementById('article-content');
+        const headings = articleContent.querySelectorAll('h2, h3');
+        const tocList = document.getElementById('toc-list');
+        const tocWidget = document.querySelector('.toc-widget');
+
+        if (headings.length === 0) {
+            if (tocWidget) tocWidget.style.display = 'none';
+            return;
+        }
+
+        let html = '';
+        headings.forEach((heading, index) => {
+            const id = `section-${index}`;
+            heading.id = id;
+            const level = heading.tagName === 'H2' ? 'toc-h2' : 'toc-h3';
+            const indent = heading.tagName === 'H3' ? 'style="padding-right: 1rem;"' : '';
+
+            html += `
+                <li class="toc-item ${level}" ${indent}>
+                    <a href="#${id}" class="toc-link" data-target="${id}">
+                        ${heading.textContent}
+                    </a>
+                </li>
+            `;
+        });
+
+        tocList.innerHTML = html;
+
+        // Smooth scroll
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.getElementById(link.dataset.target);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    }
+
+    // TOC Active State Observer
+    function initTOCObserver() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    document.querySelectorAll('.toc-link').forEach(link => {
+                        link.classList.remove('active');
+                        if (link.dataset.target === entry.target.id) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, { rootMargin: '-20% 0px -80% 0px' });
+
+        document.querySelectorAll('.article-body h2, .article-body h3').forEach(heading => {
+            observer.observe(heading);
+        });
+    }
+
+    async function loadStats() {
+        try {
+            const response = await fetch(statsUrl);
+            if (!response.ok) return;
+            const data = await response.json();
+
+            document.getElementById('view-count').textContent = formatNumber(data.views || 0);
+            document.getElementById('comment-count').textContent = formatNumber(data.comments || 0);
+            document.getElementById('comment-badge').textContent = formatNumber(data.comments || 0);
+
+            const avg = Number(data.rating_avg || 0);
+            const cnt = Number(data.rating_count || 0);
+
+            const avgText = (Math.round(avg * 100) / 100).toFixed(2);
+            document.getElementById('rating-avg').textContent = avgText;
+            document.getElementById('rating-count').textContent = formatNumber(cnt);
+            document.getElementById('rating-avg-inline').textContent = avgText;
+            document.getElementById('rating-count-inline').textContent = formatNumber(cnt);
+
+            currentUserRating = Number(data.user_rating || 0);
+            setUserRatingUI(currentUserRating);
+
+            const yourWrap = document.getElementById('your-rating-wrapper');
+            const yourValue = document.getElementById('your-rating');
+            if (yourWrap && yourValue) {
+                if (currentUserRating > 0) {
+                    yourWrap.style.display = 'inline';
+                    yourValue.textContent = String(currentUserRating);
+                } else {
+                    yourWrap.style.display = 'none';
+                }
+            }
+        } catch (error) {
+            console.error('Error loading stats:', error);
+        }
+    }
+
+    function commentCardHtml(comment) {
+        const author = escapeHtml(comment.author || 'کاربر');
+        const safeDate = escapeHtml(comment.date || '');
+        const safeText = nl2br(escapeHtml(comment.text || ''));
+        const initial = (author.charAt(0) || 'U');
+
+        let repliesHtml = '';
+        if (comment.replies && comment.replies.length) {
+            repliesHtml += '<div class="comment-replies">';
+            comment.replies.forEach(reply => {
+                const rAuthor = escapeHtml(reply.author || 'کاربر');
+                const rDate = escapeHtml(reply.date || '');
+                const rText = nl2br(escapeHtml(reply.text || ''));
+                const rInitial = (rAuthor.charAt(0) || 'U');
+                repliesHtml += `
+                    <div class="comment-card reply-card">
+                        <div class="comment-header">
+                            <div class="comment-author">
+                                <div class="comment-avatar">${rInitial}</div>
+                                <div class="comment-meta">
+                                    <h5>${rAuthor}</h5>
+                                    <span class="comment-date">${rDate}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="comment-text">${rText}</p>
+                    </div>
+                `;
+            });
+            repliesHtml += '</div>';
+        }
+
+        let replyActionHtml = '';
+        if (isAuthenticated) {
+            replyActionHtml = `
+                <div class="comment-actions">
+                    <button type="button" class="action-btn-modern" style="padding:6px 10px; font-size:0.85rem;" onclick="toggleReplyForm(${comment.id})">
+                        <svg class="icon icon-reply_arrow" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#reply_arrow" xlink:href="{{ icon_sprite }}#reply_arrow"></use></svg>
+                        <span>پاسخ</span>
+                    </button>
+                </div>
+                <div class="comment-form-modern" id="reply-form-${comment.id}" style="display:none; margin-top: var(--sp-3);">
+                    <textarea
+                        id="reply-text-${comment.id}"
+                        class="comment-textarea"
+                        placeholder="پاسخ خود را بنویسید..."
+                        maxlength="2000"
+                    ></textarea>
+                    <div class="comment-form-actions">
+                        <span class="comment-char-count" id="reply-count-${comment.id}">0 / 2000</span>
+                        <button type="button" class="action-btn-modern" onclick="submitReply(${comment.id})">
+                            <svg class="icon icon-paper_plane" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#paper_plane" xlink:href="{{ icon_sprite }}#paper_plane"></use></svg>
+                            <span>ارسال پاسخ</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="comment-card" id="comment-${comment.id}">
+                <div class="comment-header">
+                    <div class="comment-author">
+                        <div class="comment-avatar">${initial}</div>
+                        <div class="comment-meta">
+                            <h5>${author}</h5>
+                            <span class="comment-date">${safeDate}</span>
+                        </div>
+                    </div>
+                </div>
+                <p class="comment-text">${safeText}</p>
+                ${replyActionHtml}
+                ${repliesHtml}
+            </div>
+        `;
+    }
+
+    async function loadComments(page = 1, append = false) {
+        try {
+            const response = await fetch(`${commentsUrl}?page=${page}`);
+            if (!response.ok) throw new Error('خطا در دریافت نظرات');
+
+            const data = await response.json();
+            const container = document.getElementById('comments-container');
+
+            // On fresh load, build skeleton wrapper.
+            if (!append) {
+                currentCommentsPage = 1;
+                commentsHasNext = false;
+
+                if (!data.comments || data.comments.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state-modern">
+                            <svg class="icon icon-comments" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#comments" xlink:href="{{ icon_sprite }}#comments"></use></svg>
+                            <h4>هنوز نظری ثبت نشده</h4>
+                            <p>اولین نفر باشید که نظر می‌دهید!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div class="comments-list" id="comments-list"></div>
+                    <div style="display:flex; justify-content:center; margin-top: var(--sp-5);">
+                        <button type="button" id="comments-load-more" class="action-btn-modern" style="display:none;">
+                            <svg class="icon icon-expand_arrow" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#expand_arrow" xlink:href="{{ icon_sprite }}#expand_arrow"></use></svg>
+                            <span>نمایش نظرات بیشتر</span>
+                        </button>
+                    </div>
+                `;
+            }
+
+            const listEl = document.getElementById('comments-list');
+            if (!listEl) return;
+
+            const cards = (data.comments || []).map(commentCardHtml).join('');
+            listEl.insertAdjacentHTML('beforeend', cards);
+
+            currentCommentsPage = Number(data.page || page);
+            commentsHasNext = Boolean(data.has_next);
+
+            const loadMoreBtn = document.getElementById('comments-load-more');
+            if (loadMoreBtn) {
+                if (commentsHasNext) {
+                    loadMoreBtn.style.display = 'inline-flex';
+                    loadMoreBtn.onclick = () => loadComments(currentCommentsPage + 1, true);
+                } else {
+                    loadMoreBtn.style.display = 'none';
+                }
+            }
+        } catch (error) {
+            document.getElementById('comments-container').innerHTML = `
+                <div class="empty-state-modern">
+                    <svg class="icon icon-exclamation_mark" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#exclamation_mark" xlink:href="{{ icon_sprite }}#exclamation_mark"></use></svg>
+                    <h4>خطا در بارگذاری</h4>
+                    <p>لطفاً صفحه را refresh کنید</p>
+                </div>
+            `;
+        }
+    }
+
+    function toggleReplyForm(parentId) {
+        const form = document.getElementById(`reply-form-${parentId}`);
+        if (!form) return;
+        const nextVisible = form.style.display === 'none' || !form.style.display;
+        form.style.display = nextVisible ? 'block' : 'none';
+
+        if (nextVisible) {
+            const textarea = document.getElementById(`reply-text-${parentId}`);
+            const counter = document.getElementById(`reply-count-${parentId}`);
+            if (textarea && counter && !textarea.dataset.bound) {
+                textarea.dataset.bound = '1';
+                const sync = () => {
+                    counter.textContent = `${textarea.value.length} / 2000`;
+                };
+                textarea.addEventListener('input', sync);
+                sync();
+                textarea.focus();
+            }
+        }
+    }
+
+    async function submitReply(parentId) {
+        const textarea = document.getElementById(`reply-text-${parentId}`);
+        if (!textarea) return;
+
+        const text = (textarea.value || '').trim();
+        if (!text) {
+            setCommentStatus('متن پاسخ نمی‌تواند خالی باشد.', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(commentsUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ text, parent_id: parentId })
+            });
+
+            const data = await response.json().catch(() => ({}));
+            if (response.status === 401 && data.login_url) {
+                window.location.href = data.login_url;
+                return;
+            }
+            if (!response.ok || !data.ok) {
+                throw new Error(data.error || 'ثبت پاسخ انجام نشد.');
+            }
+
+            textarea.value = '';
+            const counter = document.getElementById(`reply-count-${parentId}`);
+            if (counter) counter.textContent = '0 / 2000';
+
+            setCommentStatus('پاسخ شما با موفقیت ثبت شد.', 'success');
+            await loadComments(1, false);
+            await loadStats();
+            const target = document.getElementById(`comment-${parentId}`);
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } catch (error) {
+            setCommentStatus(error.message || 'خطا در ثبت پاسخ. دوباره تلاش کنید.', 'error');
+        }
+    }
+
+    async function loadRelated() {
+        try {
+            const response = await fetch(relatedUrl);
+            if (!response.ok) throw new Error('خطا در دریافت مطالب مرتبط');
+            const data = await response.json();
+            const container = document.getElementById('related-container');
+
+            if (!data.articles || data.articles.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--c-muted); padding: var(--sp-6);">مطلب مرتبطی یافت نشد</p>';
+                return;
+            }
+
+            let html = '<div class="related-grid-modern">';
+            data.articles.forEach(item => {
+                const safeTitle = escapeHtml(item.title || '');
+                const safeUrl = item.url || '#';
+                html += `
+                    <article class="related-card">
+                        <a href="${safeUrl}" style="text-decoration: none; color: inherit; display: block;">
+                            ${(item.thumbnail || item.hero_image) ? `
+                            <div class="related-image">
+                                <img src="${item.thumbnail || item.hero_image}" alt="${safeTitle}" loading="lazy">
+                            </div>
+                            ` : ''}
+                            <div class="related-content">
+                                <h4 class="related-title">${safeTitle}</h4>
+                            </div>
+                        </a>
+                    </article>
+                `;
+            });
+            html += '</div>';
+
+            container.innerHTML = html;
+        } catch (error) {
+            document.getElementById('related-container').innerHTML = `
+                <div class="empty-state-modern">
+                    <svg class="icon icon-exclamation_mark" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#exclamation_mark" xlink:href="{{ icon_sprite }}#exclamation_mark"></use></svg>
+                    <p>خطا در بارگذاری مطالب مرتبط</p>
+                </div>
+            `;
+        }
+    }
+
+    
+    // --------------------------------------------
+    // Lazy loading: comments & related articles
+    // --------------------------------------------
+    function initLazyComments() {
+        const container = document.getElementById('comments-container');
+        if (!container) return;
+
+        // Replace initial spinner with a lightweight placeholder.
+        container.innerHTML = `
+            <div class="empty-state-modern" style="padding: var(--sp-6);">
+                <svg class="icon icon-comments" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#comments" xlink:href="{{ icon_sprite }}#comments"></use></svg>
+                <h4>نظرات به‌صورت تنبل بارگذاری می‌شوند</h4>
+                <p>برای کاهش مصرف اینترنت و افزایش سرعت، نظرات فقط هنگام نیاز لود می‌شوند.</p>
+                <button type="button" id="load-comments-now" class="action-btn-modern">
+                    <svg class="icon icon-sync" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#sync" xlink:href="{{ icon_sprite }}#sync"></use></svg>
+                    <span>بارگذاری نظرات</span>
+                </button>
+            </div>
+        `;
+
+        const startLoad = () => {
+            // Prevent double-load
+            if (container.dataset.loaded === '1') return;
+            container.dataset.loaded = '1';
+
+            container.innerHTML = `
+                <div class="loading-state">
+                    <div class="spinner-modern"></div>
+                    <p>در حال بارگذاری نظرات...</p>
+                </div>
+            `;
+            loadComments(1, false);
+        };
+
+        const btn = document.getElementById('load-comments-now');
+        if (btn) btn.addEventListener('click', startLoad, { once: true });
+
+        if ('IntersectionObserver' in window) {
+            const obs = new IntersectionObserver((entries) => {
+                if (entries.some(e => e.isIntersecting)) {
+                    obs.disconnect();
+                    startLoad();
+                }
+            }, { rootMargin: '300px 0px' });
+
+            obs.observe(container);
+        } else {
+            // Old browsers fallback
+            setTimeout(startLoad, 2500);
+        }
+    }
+
+    function initLazyRelated() {
+        const container = document.getElementById('related-container');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="empty-state-modern" style="padding: var(--sp-6);">
+                <svg class="icon icon-layers" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#layers" xlink:href="{{ icon_sprite }}#layers"></use></svg>
+                <h4>مطالب مرتبط بعداً بارگذاری می‌شوند</h4>
+                <p>برای افزایش سرعت، مطالب مرتبط فقط نزدیک این بخش لود می‌شوند.</p>
+                <button type="button" id="load-related-now" class="action-btn-modern">
+                    <svg class="icon icon-sync" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#sync" xlink:href="{{ icon_sprite }}#sync"></use></svg>
+                    <span>بارگذاری مطالب مرتبط</span>
+                </button>
+            </div>
+        `;
+
+        const startLoad = () => {
+            if (container.dataset.loaded === '1') return;
+            container.dataset.loaded = '1';
+
+            container.innerHTML = `
+                <div class="loading-state">
+                    <div class="spinner-modern"></div>
+                    <p>در حال بارگذاری...</p>
+                </div>
+            `;
+            loadRelated();
+        };
+
+        const btn = document.getElementById('load-related-now');
+        if (btn) btn.addEventListener('click', startLoad, { once: true });
+
+        if ('IntersectionObserver' in window) {
+            const obs = new IntersectionObserver((entries) => {
+                if (entries.some(e => e.isIntersecting)) {
+                    obs.disconnect();
+                    startLoad();
+                }
+            }, { rootMargin: '400px 0px' });
+
+            obs.observe(container);
+        } else {
+            setTimeout(startLoad, 3500);
+        }
+    }
+
+    // --------------------------------------------
+    // View tracking: after full load + 5s visible
+    // --------------------------------------------
+    let _viewRecorded = false;
+    let _viewTimerArmed = false;
+
+    function scheduleViewRecord() {
+        if (_viewRecorded || _viewTimerArmed) return;
+        _viewTimerArmed = true;
+
+        const arm = () => {
+            if (_viewRecorded) return;
+
+            // Only count if user is actually viewing the page.
+            if (document.hidden) {
+                const onVis = () => {
+                    if (!document.hidden) {
+                        document.removeEventListener('visibilitychange', onVis);
+                        arm();
+                    }
+                };
+                document.addEventListener('visibilitychange', onVis);
+                return;
+            }
+
+            setTimeout(() => {
+                if (_viewRecorded) return;
+                if (document.hidden) {
+                    // If user left the tab, wait until visible again then count 5s.
+                    _viewTimerArmed = false;
+                    scheduleViewRecord();
+                    return;
+                }
+
+                const send = () => {
+                    if (_viewRecorded) return;
+                    _viewRecorded = true;
+                    recordView();
+                };
+
+                // Don't compete with main-thread work.
+                if ('requestIdleCallback' in window) {
+                    window.requestIdleCallback(send, { timeout: 1200 });
+                } else {
+                    send();
+                }
+            }, 5000);
+        };
+
+        if (document.readyState === 'complete') {
+            arm();
+        } else {
+            window.addEventListener('load', arm, { once: true });
+        }
+    }
+
+async function recordView() {
+        try {
+            await fetch(actionsUrl, {
+                method: 'POST',
+                credentials: 'same-origin',
+                keepalive: true,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ event: 'view' })
+            });
+        } catch (error) {
+            // Intentionally silent - should not impact UX/perf.
+            console.error('Error recording view:', error);
+        }
+    }
+
+    async function recordShare() {
+        try {
+            await fetch(actionsUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ event: 'share' })
+            });
+        } catch (error) {
+            console.error('Error recording share:', error);
+        }
+    }
+
+    async function submitComment(event) {
+        event.preventDefault();
+
+        const form = event.currentTarget;
+        const textField = document.getElementById('comment-text');
+        const submitButton = form.querySelector('button[type="submit"]');
+        const text = (textField.value || '').trim();
+
+        if (!text) {
+            setCommentStatus('متن نظر نمی‌تواند خالی باشد.', 'error');
+            return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.style.opacity = '0.7';
+
+        try {
+            const response = await fetch(commentsUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ text })
+            });
+
+            const data = await response.json().catch(() => ({}));
+            if (response.status === 401 && data.login_url) {
+                window.location.href = data.login_url;
+                return;
+            }
+            if (!response.ok || !data.ok) {
+                throw new Error(data.error || 'ثبت نظر انجام نشد.');
+            }
+
+            textField.value = '';
+            const counter = document.getElementById('comment-char-count');
+            if (counter) counter.textContent = '0 / 2000';
+
+            setCommentStatus('نظر شما با موفقیت ثبت شد.', 'success');
+            await loadComments(1, false);
+            await loadStats();
+        } catch (error) {
+            setCommentStatus(error.message || 'خطا در ثبت نظر. دوباره تلاش کنید.', 'error');
+        } finally {
+            submitButton.disabled = false;
+            submitButton.style.opacity = '1';
+        }
+    }
+
+    function setCommentStatus(message, type) {
+        const statusEl = document.getElementById('comment-status');
+        if (!statusEl) return;
+        statusEl.style.display = 'block';
+        statusEl.className = `comment-status ${type || ''}`.trim();
+        statusEl.textContent = message || '';
+    }
+
+    function setRatingStatus(message, type) {
+        const statusEl = document.getElementById('rating-status');
+        if (!statusEl) return;
+        statusEl.style.display = 'block';
+        statusEl.className = `comment-status ${type || ''}`.trim();
+        statusEl.textContent = message || '';
+        if (message) {
+            setTimeout(() => {
+                statusEl.style.display = 'none';
+            }, 2500);
+        }
+    }
+
+    // Rating UI
+    function initRatingStars() {
+        const container = document.getElementById('rating-stars');
+        if (!container) return;
+
+        container.querySelectorAll('.rating-star-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const value = Number(btn.dataset.rating || 0);
+                submitRating(value);
+            });
+            btn.addEventListener('mouseenter', () => {
+                const value = Number(btn.dataset.rating || 0);
+                previewStars(value);
+            });
+        });
+
+        container.addEventListener('mouseleave', () => {
+            setUserRatingUI(currentUserRating);
+        });
+    }
+
+    function previewStars(value) {
+        const v = Number(value || 0);
+        document.querySelectorAll('#rating-stars .rating-star-btn').forEach(btn => {
+            const b = Number(btn.dataset.rating || 0);
+            btn.classList.toggle('active', b <= v);
+        });
+    }
+
+    function setUserRatingUI(value) {
+        currentUserRating = Number(value || 0);
+        document.querySelectorAll('#rating-stars .rating-star-btn').forEach(btn => {
+            const b = Number(btn.dataset.rating || 0);
+            btn.classList.toggle('active', b <= currentUserRating && currentUserRating > 0);
+        });
+    }
+
+    async function submitRating(value) {
+        const v = Number(value || 0);
+        if (!v || v < 1 || v > 5) return;
+
+        try {
+            const response = await fetch(actionsUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ event: 'rating', value: v })
+            });
+
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok || !data.ok) {
+                throw new Error(data.error || 'امتیاز ثبت نشد.');
+            }
+
+            currentUserRating = v;
+            setUserRatingUI(currentUserRating);
+
+            const yourWrap = document.getElementById('your-rating-wrapper');
+            const yourValue = document.getElementById('your-rating');
+            if (yourWrap && yourValue) {
+                yourWrap.style.display = 'inline';
+                yourValue.textContent = String(currentUserRating);
+            }
+
+            // Update stats from response when possible.
+            if (typeof data.rating_avg !== 'undefined') {
+                const avg = Number(data.rating_avg || 0);
+                const cnt = Number(data.rating_count || 0);
+                const avgText = (Math.round(avg * 100) / 100).toFixed(2);
+                document.getElementById('rating-avg').textContent = avgText;
+                document.getElementById('rating-avg-inline').textContent = avgText;
+                document.getElementById('rating-count').textContent = formatNumber(cnt);
+                document.getElementById('rating-count-inline').textContent = formatNumber(cnt);
+            }
+
+            setRatingStatus('امتیاز شما ثبت شد.', 'success');
+        } catch (error) {
+            setRatingStatus(error.message || 'خطا در ثبت امتیاز.', 'error');
+        }
+    }
+
+    // Share helpers
+    function shareArticle() {
+        if (navigator.share) {
+            navigator.share({
+                title: '{{ article.title|escapejs }}',
+                url: window.location.href
+            });
+        } else {
+            copyLink();
+        }
+    }
+
+    function shareTo(platform) {
+        const url = encodeURIComponent(window.location.href);
+        const title = encodeURIComponent('{{ article.title|escapejs }}');
+        let shareUrl = '';
+
+        switch(platform) {
+            case 'twitter':
+                shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${title}`;
+                break;
+            case 'linkedin':
+                shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+                break;
+            case 'telegram':
+                shareUrl = `https://t.me/share/url?url=${url}&text=${title}`;
+                break;
+        }
+
+        if (shareUrl) {
+            window.open(shareUrl, '_blank', 'width=600,height=400');
+        }
+    }
+
+    function copyLink(buttonElement = null) {
+        if (!navigator.clipboard) return;
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            if (!buttonElement) return;
+            const original = buttonElement.innerHTML;
+            buttonElement.innerHTML = '<svg class="icon icon-verified_account" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#verified_account" xlink:href="{{ icon_sprite }}#verified_account"></use></svg><span>کپی شد!</span>';
+            setTimeout(() => {
+                buttonElement.innerHTML = original;
+            }, 2000);
+        });
+    }
+
+    function formatNumber(num) {
+        const n = Number(num || 0);
+        if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+        if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
+        return String(n);
+    }
+
+    function getCsrfToken() {
+        const name = 'csrftoken';
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function nl2br(value) {
+        return String(value).replace(/\n/g, '<br>');
+    }
+</script>
+{% endblock %}

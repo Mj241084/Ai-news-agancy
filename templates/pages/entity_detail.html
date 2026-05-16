@@ -1,0 +1,54 @@
+
+{% extends 'base.html' %}
+
+{% block title %}{{ entity.name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <div style="display: flex; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-2);">
+            <span class="badge badge-primary">موجودیت</span>
+        </div>
+        <h1 class="page-title">{{ entity.name }}</h1>
+        {% if entity.description %}
+        <p class="page-description">{{ entity.description }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container">
+    <div class="grid-2">
+        <div class="main-column">
+            {% if items %}
+                <div class="articles-list">
+                    {% for item in items %}
+                        {% include 'partials/_article_card.html' with item=item %}
+                    {% endfor %}
+                </div>
+                
+                {% include 'partials/_pagination.html' %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <svg class="icon icon-inbox" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#inbox" xlink:href="{{ icon_sprite }}#inbox"></use></svg>
+                    </div>
+                    <h3 class="empty-state-title">مطلبی یافت نشد</h3>
+                    <p class="empty-state-text">هنوز مطلبی مرتبط با این موجودیت منتشر نشده است.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <svg class="icon icon-layers" aria-hidden="true" focusable="false"><use href="{{ icon_sprite }}#layers" xlink:href="{{ icon_sprite }}#layers"></use></svg>
+                    نوع موجودیت
+                </h3>
+                <p style="font-size: var(--fs-6); color: var(--c-muted); margin: 0;">
+                    {{ entity.type }}
+                </p>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}

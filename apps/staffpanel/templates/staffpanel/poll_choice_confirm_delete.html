@@ -1,0 +1,23 @@
+{% extends "staffpanel/base.html" %}
+
+{% block title %}حذف گزینه{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>حذف گزینه</h1>
+    <p>از حذف این گزینه مطمئن هستید؟</p>
+
+    <p>
+        <strong>{{ choice.text }}</strong><br>
+        <span class="muted">سؤال: {{ choice.question.text }}</span>
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="toolbar">
+            <button class="btn btn-danger" type="submit">حذف</button>
+            <a class="btn btn-secondary" href="{% url 'staffpanel:question-edit' choice.question_id %}">انصراف</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% if subcategories_nav %}
+<div class="subcats-bar" aria-label="زیردسته‌ها">
+    <a class="subcat-chip active" href="{% url 'taxonomy:category_detail' category_slug=category.slug %}">همین دسته</a>
+    {% for sub in subcategories_nav %}
+        <a class="subcat-chip{% if sub.slug == category.slug %} active{% endif %}" href="{{ sub.url }}">{{ sub.title }}</a>
+    {% endfor %}
+    <a class="subcat-chip" href="{% url 'taxonomy:category_index' %}">همه دسته‌ها</a>
+</div>
+{% endif %}

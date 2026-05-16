@@ -1,0 +1,28 @@
+{% extends "staffpanel/base.html" %}
+
+{% block title %}حذف آیتم{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>حذف آیتم</h1>
+    <p>از حذف این آیتم مطمئن هستید؟</p>
+
+    <p>
+        <strong>{{ object.title|default:object.name }}</strong><br>
+        <span class="muted">اسلاگ: {{ object.slug }}</span>
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+        {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
+        <div class="toolbar">
+            <button class="btn btn-danger" type="submit">حذف</button>
+            {% if next_url %}
+                <a class="btn btn-secondary" href="{{ next_url }}">انصراف</a>
+            {% else %}
+                <a class="btn btn-secondary" href="{% url 'staffpanel:dashboard' %}">انصراف</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}
